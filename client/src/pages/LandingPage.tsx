@@ -24,7 +24,7 @@ export default function LandingPage() {
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState("talent");
 
-  const talentForm = useForm<InsertTalent>({
+  const talentForm = useForm<InsertTalent & { cvFile?: File }>({
     resolver: zodResolver(insertTalentSchema),
     defaultValues: {
       fullName: "",

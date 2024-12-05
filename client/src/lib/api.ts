@@ -7,7 +7,7 @@ export async function registerTalent(data: InsertTalent & { cvFile?: File }) {
   
   // Add all text fields to formData
   Object.entries(data).forEach(([key, value]) => {
-    if (key !== 'cvFile' && value !== undefined) {
+    if (key !== 'cvFile' && value !== undefined && value !== null) {
       formData.append(key, value.toString());
     }
   });
