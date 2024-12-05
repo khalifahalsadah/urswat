@@ -269,8 +269,7 @@ export default function Dashboard() {
                         <TableHead>Full Name</TableHead>
                         <TableHead>Email</TableHead>
                         <TableHead>Phone</TableHead>
-                        <TableHead>Skills</TableHead>
-                        <TableHead>Experience</TableHead>
+                        <TableHead>CV</TableHead>
                         <TableHead>Status</TableHead>
                         <TableHead>Registered At</TableHead>
                         <TableHead>Actions</TableHead>
@@ -282,8 +281,15 @@ export default function Dashboard() {
                           <TableCell>{talent.fullName}</TableCell>
                           <TableCell>{talent.email}</TableCell>
                           <TableCell>{talent.phone}</TableCell>
-                          <TableCell>{talent.skills}</TableCell>
-                          <TableCell>{talent.experience}</TableCell>
+                          <TableCell>
+                            {talent.cvPath ? (
+                              <Button variant="link" onClick={() => window.open(`/uploads/${talent.cvPath}`, '_blank')}>
+                                View CV
+                              </Button>
+                            ) : (
+                              "No CV uploaded"
+                            )}
+                          </TableCell>
                           <TableCell>
                             <Select
                               value={talent.status}

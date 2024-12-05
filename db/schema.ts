@@ -7,8 +7,7 @@ export const talents = pgTable("talents", {
   fullName: text("full_name").notNull(),
   email: text("email").unique().notNull(),
   phone: text("phone").notNull(),
-  skills: text("skills").notNull(),
-  experience: text("experience").notNull(),
+  cvPath: text("cv_path"),
   status: text("status").notNull().default("lead"),
   createdAt: timestamp("created_at").defaultNow()
 });
