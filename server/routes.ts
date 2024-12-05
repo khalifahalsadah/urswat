@@ -7,8 +7,12 @@ export function registerRoutes(app: Express) {
     try {
       const talent = await db.insert(talents).values(req.body).returning();
       res.json(talent[0]);
-    } catch (error) {
-      res.status(500).json({ error: "Failed to register talent" });
+    } catch (error: any) {
+      if (error.code === '23505') { // PostgreSQL unique violation error code
+        res.status(400).json({ error: "Email already registered" });
+      } else {
+        res.status(500).json({ error: "Failed to register talent" });
+      }
     }
   });
 
@@ -16,8 +20,12 @@ export function registerRoutes(app: Express) {
     try {
       const company = await db.insert(companies).values(req.body).returning();
       res.json(company[0]);
-    } catch (error) {
-      res.status(500).json({ error: "Failed to register company" });
+    } catch (error: any) {
+      if (error.code === '23505') { // PostgreSQL unique violation error code
+        res.status(400).json({ error: "Email already registered" });
+      } else {
+        res.status(500).json({ error: "Failed to register company" });
+      }
     }
   });
 }
