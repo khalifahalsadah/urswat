@@ -2,16 +2,13 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { fetchTalents, fetchCompanies, updateTalent, updateCompany, deleteTalent, deleteCompany, registerTalent, registerCompany } from "../lib/api";
-import type { Talent, Company, InsertTalent, InsertCompany } from "@db/schema";
-import { insertTalentSchema, insertCompanySchema } from "@db/schema";
+import { fetchTalents, fetchCompanies, updateTalent, updateCompany, deleteTalent, deleteCompany, registerTalent, registerCompany, fetchUsers, register, updateUser, deleteUser } from "../lib/api";
+import type { Talent, Company, InsertTalent, InsertCompany, User, InsertUser } from "@db/schema";
+import { insertTalentSchema, insertCompanySchema, insertUserSchema } from "@db/schema";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/hooks/use-toast";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import {
   Form,
   FormControl,
@@ -20,9 +17,13 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { useToast } from "@/hooks/use-toast";
 import {
   Table,
   TableBody,
+  TableCaption,
   TableCell,
   TableHead,
   TableHeader,
@@ -31,11 +32,72 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function Dashboard() {
-  const [activeTab, setActiveTab] = useState("talents");
+  const [activeTab, setActiveTab] = useState("users");
   const [editingTalent, setEditingTalent] = useState<Talent | null>(null);
   const [editingCompany, setEditingCompany] = useState<Company | null>(null);
+  const [editingUser, setEditingUser] = useState<User | null>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
+
+  const userForm = useForm<InsertUser>({
+    resolver: zodResolver(insertUserSchema),
+    defaultValues: {
+      name: "",
+      email: "",
+      phone: "",
+      password: "",
+    },
+  });
+
+  const usersQuery = useQuery({
+    queryKey: ["users"],
+    queryFn: fetchUsers,
+  });
+
+  const userMutation = useMutation({
+    mutationFn: register,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["users"] });
+      toast({ title: "User added successfully" });
+      userForm.reset();
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Failed to add user",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  const updateUserMutation = useMutation({
+    mutationFn: ({ id, ...data }: { id: number } & Partial<InsertUser>) => updateUser(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["users"] });
+      toast({ title: "User updated successfully" });
+      setEditingUser(null);
+    },
+    onError: () => {
+      toast({ title: "Failed to update user", variant: "destructive" });
+    },
+  });
+
+  const deleteUserMutation = useMutation({
+    mutationFn: deleteUser,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["users"] });
+      toast({ title: "User deleted successfully" });
+    },
+    onError: () => {
+      toast({ title: "Failed to delete user", variant: "destructive" });
+    },
+  });
+
+  const handleDeleteUser = (id: number) => {
+    if (confirm("Are you sure you want to delete this user?")) {
+      deleteUserMutation.mutate(id);
+    }
+  };
 
   const talentForm = useForm<InsertTalent>({
     resolver: zodResolver(insertTalentSchema),
@@ -54,142 +116,44 @@ export default function Dashboard() {
       contactPerson: "",
       email: "",
       phone: "",
-      
     },
   });
-
-  const talentMutation = useMutation({
-    mutationFn: registerTalent,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["talents"] });
-      toast({ title: "Talent added successfully" });
-      talentForm.reset();
-    },
-    onError: (error: Error) => {
-      toast({ 
-        title: "Failed to add talent", 
-        description: error.message,
-        variant: "destructive" 
-      });
-    },
-  });
-
-  const companyMutation = useMutation({
-    mutationFn: registerCompany,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["companies"] });
-      toast({ title: "Company added successfully" });
-      companyForm.reset();
-    },
-    onError: (error: Error) => {
-      toast({ 
-        title: "Failed to add company", 
-        description: error.message,
-        variant: "destructive" 
-      });
-    },
-  });
-
-  const talentsQuery = useQuery({
-    queryKey: ["talents"],
-    queryFn: fetchTalents,
-  });
-
-  const companiesQuery = useQuery({
-    queryKey: ["companies"],
-    queryFn: fetchCompanies,
-  });
-
-  const updateTalentMutation = useMutation({
-    mutationFn: ({ id, ...data }: { id: number } & Partial<InsertTalent>) => updateTalent(id, data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["talents"] });
-      toast({ title: "Talent updated successfully" });
-    },
-    onError: () => {
-      toast({ title: "Failed to update talent", variant: "destructive" });
-    },
-  });
-
-  const updateCompanyMutation = useMutation({
-    mutationFn: ({ id, ...data }: { id: number } & Partial<InsertCompany>) => updateCompany(id, data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["companies"] });
-      toast({ title: "Company updated successfully" });
-    },
-    onError: () => {
-      toast({ title: "Failed to update company", variant: "destructive" });
-    },
-  });
-
-  const deleteTalentMutation = useMutation({
-    mutationFn: deleteTalent,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["talents"] });
-      toast({ title: "Talent deleted successfully" });
-    },
-    onError: () => {
-      toast({ title: "Failed to delete talent", variant: "destructive" });
-    },
-  });
-
-  const deleteCompanyMutation = useMutation({
-    mutationFn: deleteCompany,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["companies"] });
-      toast({ title: "Company deleted successfully" });
-    },
-    onError: () => {
-      toast({ title: "Failed to delete company", variant: "destructive" });
-    },
-  });
-
-  const handleDeleteTalent = (id: number) => {
-    if (confirm("Are you sure you want to delete this talent?")) {
-      deleteTalentMutation.mutate(id);
-    }
-  };
-
-  const handleDeleteCompany = (id: number) => {
-    if (confirm("Are you sure you want to delete this company?")) {
-      deleteCompanyMutation.mutate(id);
-    }
-  };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-7xl mx-auto px-4">
+    <div className="container mx-auto py-10">
+      <div className="space-y-8">
         <h1 className="text-4xl font-bold mb-8">Dashboard</h1>
-        
+
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-[400px] grid-cols-2">
+          <TabsList className="grid w-[600px] grid-cols-3">
+            <TabsTrigger value="users">Users</TabsTrigger>
             <TabsTrigger value="talents">Talents</TabsTrigger>
             <TabsTrigger value="companies">Companies</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="talents" className="mt-6">
+          <TabsContent value="users" className="mt-6">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-xl font-bold">Registered Talents</CardTitle>
+                <CardTitle className="text-xl font-bold">System Users</CardTitle>
                 <Dialog>
                   <DialogTrigger asChild>
-                    <Button>Add Talent</Button>
+                    <Button>Add User</Button>
                   </DialogTrigger>
                   <DialogContent className="max-w-lg">
                     <DialogHeader>
-                      <DialogTitle>Add New Talent</DialogTitle>
+                      <DialogTitle>Add New User</DialogTitle>
                       <p className="text-sm text-muted-foreground mt-2">
-                        Fill in the talent information below. All fields are required.
+                        Fill in the user information below. All fields are required.
                       </p>
                     </DialogHeader>
-                    <Form {...talentForm}>
-                      <form onSubmit={talentForm.handleSubmit((data) => talentMutation.mutate(data))} className="space-y-4">
+                    <Form {...userForm}>
+                      <form onSubmit={userForm.handleSubmit((data) => userMutation.mutate(data))} className="space-y-4">
                         <FormField
-                          control={talentForm.control}
-                          name="fullName"
+                          control={userForm.control}
+                          name="name"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Full Name</FormLabel>
+                              <FormLabel>Name</FormLabel>
                               <FormControl>
                                 <Input {...field} />
                               </FormControl>
@@ -198,7 +162,7 @@ export default function Dashboard() {
                           )}
                         />
                         <FormField
-                          control={talentForm.control}
+                          control={userForm.control}
                           name="email"
                           render={({ field }) => (
                             <FormItem>
@@ -211,7 +175,7 @@ export default function Dashboard() {
                           )}
                         />
                         <FormField
-                          control={talentForm.control}
+                          control={userForm.control}
                           name="phone"
                           render={({ field }) => (
                             <FormItem>
@@ -224,101 +188,62 @@ export default function Dashboard() {
                           )}
                         />
                         <FormField
-                          control={talentForm.control}
-                          name="cvPath"
+                          control={userForm.control}
+                          name="password"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Upload CV (PDF)</FormLabel>
+                              <FormLabel>Password</FormLabel>
                               <FormControl>
-                                <Input 
-                                  type="file" 
-                                  accept=".pdf"
-                                  onChange={(e) => {
-                                    const file = e.target.files?.[0];
-                                    if (file) {
-                                      // Handle file upload here
-                                      field.onChange(file.name);
-                                    }
-                                  }}
-                                />
+                                <Input type="password" {...field} />
                               </FormControl>
                               <FormMessage />
                             </FormItem>
                           )}
                         />
-                        <Button type="submit">Add Talent</Button>
+                        <Button type="submit">Add User</Button>
                       </form>
                     </Form>
                   </DialogContent>
                 </Dialog>
               </CardHeader>
               <CardContent>
-                {talentsQuery.isLoading ? (
-                  <p>Loading talents...</p>
-                ) : talentsQuery.error ? (
-                  <p className="text-red-500">Error loading talents</p>
+                {usersQuery.isLoading ? (
+                  <p>Loading users...</p>
+                ) : usersQuery.error ? (
+                  <p className="text-red-500">Error loading users</p>
                 ) : (
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead>Full Name</TableHead>
+                        <TableHead>Name</TableHead>
                         <TableHead>Email</TableHead>
                         <TableHead>Phone</TableHead>
-                        <TableHead>CV</TableHead>
-                        <TableHead>Status</TableHead>
-                        <TableHead>Registered At</TableHead>
+                        <TableHead>Created At</TableHead>
                         <TableHead>Actions</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {talentsQuery.data?.map((talent: Talent) => (
-                        <TableRow key={talent.id}>
-                          <TableCell>{talent.fullName}</TableCell>
-                          <TableCell>{talent.email}</TableCell>
-                          <TableCell>{talent.phone}</TableCell>
+                      {usersQuery.data?.map((user) => (
+                        <TableRow key={user.id}>
+                          <TableCell>{user.name}</TableCell>
+                          <TableCell>{user.email}</TableCell>
+                          <TableCell>{user.phone}</TableCell>
                           <TableCell>
-                            {talent.cvPath ? (
-                              <Button variant="link" onClick={() => window.open(`/uploads/${talent.cvPath}`, '_blank')}>
-                                View CV
-                              </Button>
-                            ) : (
-                              "No CV uploaded"
-                            )}
-                          </TableCell>
-                          <TableCell>
-                            <Select
-                              value={talent.status}
-                              onValueChange={(value) => 
-                                updateTalentMutation.mutate({ id: talent.id, status: value })
-                              }
-                            >
-                              <SelectTrigger>
-                                <SelectValue>{talent.status}</SelectValue>
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="lead">Lead</SelectItem>
-                                <SelectItem value="contacted">Contacted</SelectItem>
-                                <SelectItem value="client">Client</SelectItem>
-                                <SelectItem value="discarded">Discarded</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </TableCell>
-                          <TableCell>
-                            {new Date(talent.createdAt!).toLocaleDateString()}
+                            {new Date(user.createdAt!).toLocaleDateString()}
                           </TableCell>
                           <TableCell>
                             <div className="flex gap-2">
                               <Button
                                 variant="outline"
                                 size="sm"
-                                onClick={() => setEditingTalent(talent)}
+                                onClick={() => setEditingUser(user)}
                               >
                                 Edit
                               </Button>
                               <Button
                                 variant="outline"
                                 size="sm"
-                                onClick={() => handleDeleteTalent(talent.id)}
+                                onClick={() => handleDeleteUser(user.id)}
                               >
                                 Delete
                               </Button>
@@ -333,327 +258,108 @@ export default function Dashboard() {
             </Card>
           </TabsContent>
 
-          <TabsContent value="companies" className="mt-6">
+          {/* Edit User Dialog */}
+          <Dialog open={editingUser !== null} onOpenChange={() => setEditingUser(null)}>
+            <DialogContent className="max-w-lg">
+              <DialogHeader>
+                <DialogTitle>Edit User</DialogTitle>
+                <p className="text-sm text-muted-foreground mt-2">
+                  Update the user information below.
+                </p>
+              </DialogHeader>
+              {editingUser && (
+                <Form {...userForm}>
+                  <form onSubmit={userForm.handleSubmit((data) => {
+                    updateUserMutation.mutate({ id: editingUser.id, ...data });
+                  })} className="space-y-4">
+                    <FormField
+                      control={userForm.control}
+                      name="name"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Name</FormLabel>
+                          <FormControl>
+                            <Input {...field} defaultValue={editingUser.name} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={userForm.control}
+                      name="email"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Email</FormLabel>
+                          <FormControl>
+                            <Input type="email" {...field} defaultValue={editingUser.email} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={userForm.control}
+                      name="phone"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Phone</FormLabel>
+                          <FormControl>
+                            <Input {...field} defaultValue={editingUser.phone} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={userForm.control}
+                      name="password"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>New Password (optional)</FormLabel>
+                          <FormControl>
+                            <Input type="password" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <div className="flex justify-end gap-2">
+                      <Button type="button" variant="outline" onClick={() => setEditingUser(null)}>
+                        Cancel
+                      </Button>
+                      <Button type="submit">Save Changes</Button>
+                    </div>
+                  </form>
+                </Form>
+              )}
+            </DialogContent>
+          </Dialog>
+
+          {/* Other tabs content */}
+          <TabsContent value="talents">
             <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-xl font-bold">Registered Companies</CardTitle>
-                <Dialog>
-                  <DialogTrigger asChild>
-                    <Button>Add Company</Button>
-                  </DialogTrigger>
-                  <DialogContent className="max-w-lg">
-                    <DialogHeader>
-                      <DialogTitle>Add New Company</DialogTitle>
-                      <p className="text-sm text-muted-foreground mt-2">
-                        Fill in the company information below. All fields are required.
-                      </p>
-                    </DialogHeader>
-                    <Form {...companyForm}>
-                      <form onSubmit={companyForm.handleSubmit((data) => companyMutation.mutate(data))} className="space-y-4">
-                        <FormField
-                          control={companyForm.control}
-                          name="companyName"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Company Name</FormLabel>
-                              <FormControl>
-                                <Input {...field} />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        <FormField
-                          control={companyForm.control}
-                          name="contactPerson"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Contact Person</FormLabel>
-                              <FormControl>
-                                <Input {...field} />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        <FormField
-                          control={companyForm.control}
-                          name="email"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Email</FormLabel>
-                              <FormControl>
-                                <Input type="email" {...field} />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        <FormField
-                          control={companyForm.control}
-                          name="phone"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Phone</FormLabel>
-                              <FormControl>
-                                <Input {...field} />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        
-                        <Button type="submit">Add Company</Button>
-                      </form>
-                    </Form>
-                  </DialogContent>
-                </Dialog>
+              <CardHeader>
+                <CardTitle>Talents Management</CardTitle>
               </CardHeader>
               <CardContent>
-                {companiesQuery.isLoading ? (
-                  <p>Loading companies...</p>
-                ) : companiesQuery.error ? (
-                  <p className="text-red-500">Error loading companies</p>
-                ) : (
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Company Name</TableHead>
-                        <TableHead>Contact Person</TableHead>
-                        <TableHead>Email</TableHead>
-                        <TableHead>Phone</TableHead>
-                        
-                        <TableHead>Status</TableHead>
-                        <TableHead>Registered At</TableHead>
-                        <TableHead>Actions</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {companiesQuery.data?.map((company: Company) => (
-                        <TableRow key={company.id}>
-                          <TableCell>{company.companyName}</TableCell>
-                          <TableCell>{company.contactPerson}</TableCell>
-                          <TableCell>{company.email}</TableCell>
-                          <TableCell>{company.phone}</TableCell>
-                          
-                          <TableCell>
-                            <Select
-                              value={company.status}
-                              onValueChange={(value) => 
-                                updateCompanyMutation.mutate({ id: company.id, status: value })
-                              }
-                            >
-                              <SelectTrigger>
-                                <SelectValue>{company.status}</SelectValue>
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="lead">Lead</SelectItem>
-                                <SelectItem value="contacted">Contacted</SelectItem>
-                                <SelectItem value="client">Client</SelectItem>
-                                <SelectItem value="discarded">Discarded</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </TableCell>
-                          <TableCell>
-                            {new Date(company.createdAt!).toLocaleDateString()}
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex gap-2">
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => setEditingCompany(company)}
-                              >
-                                Edit
-                              </Button>
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => handleDeleteCompany(company.id)}
-                              >
-                                Delete
-                              </Button>
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                )}
+                <p>Talents management content here</p>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="companies">
+            <Card>
+              <CardHeader>
+                <CardTitle>Companies Management</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p>Companies management content here</p>
               </CardContent>
             </Card>
           </TabsContent>
         </Tabs>
       </div>
-
-      {/* Edit Talent Dialog */}
-      <Dialog open={editingTalent !== null} onOpenChange={() => setEditingTalent(null)}>
-        <DialogContent className="max-w-lg">
-          <DialogHeader>
-            <DialogTitle>Edit Talent</DialogTitle>
-            <p className="text-sm text-muted-foreground mt-2">
-              Update the talent information below. All fields are required.
-            </p>
-          </DialogHeader>
-          {editingTalent && (
-            <Form {...talentForm}>
-              <form onSubmit={talentForm.handleSubmit((data) => {
-                updateTalentMutation.mutate({ id: editingTalent.id, ...data });
-                setEditingTalent(null);
-              })} className="space-y-4">
-                <FormField
-                  control={talentForm.control}
-                  name="fullName"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Full Name</FormLabel>
-                      <FormControl>
-                        <Input {...field} value={editingTalent.fullName} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={talentForm.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Email</FormLabel>
-                      <FormControl>
-                        <Input type="email" {...field} value={editingTalent.email} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={talentForm.control}
-                  name="phone"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Phone</FormLabel>
-                      <FormControl>
-                        <Input {...field} value={editingTalent.phone} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={talentForm.control}
-                  name="cvPath"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Upload CV (PDF)</FormLabel>
-                      <FormControl>
-                        <Input 
-                          type="file" 
-                          accept=".pdf"
-                          onChange={(e) => {
-                            const file = e.target.files?.[0];
-                            if (file) {
-                              // Handle file upload here
-                              field.onChange(file.name);
-                            }
-                          }}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <div className="flex justify-end gap-2">
-                  <Button type="button" variant="outline" onClick={() => setEditingTalent(null)}>
-                    Cancel
-                  </Button>
-                  <Button type="submit">Save Changes</Button>
-                </div>
-              </form>
-            </Form>
-          )}
-        </DialogContent>
-      </Dialog>
-
-      {/* Edit Company Dialog */}
-      <Dialog open={editingCompany !== null} onOpenChange={() => setEditingCompany(null)}>
-        <DialogContent className="max-w-lg">
-          <DialogHeader>
-            <DialogTitle>Edit Company</DialogTitle>
-            <p className="text-sm text-muted-foreground mt-2">
-              Update the company information below. All fields are required.
-            </p>
-          </DialogHeader>
-          {editingCompany && (
-            <Form {...companyForm}>
-              <form onSubmit={companyForm.handleSubmit((data) => {
-                updateCompanyMutation.mutate({ id: editingCompany.id, ...data });
-                setEditingCompany(null);
-              })} className="space-y-4">
-                <FormField
-                  control={companyForm.control}
-                  name="companyName"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Company Name</FormLabel>
-                      <FormControl>
-                        <Input {...field} value={editingCompany.companyName} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={companyForm.control}
-                  name="contactPerson"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Contact Person</FormLabel>
-                      <FormControl>
-                        <Input {...field} value={editingCompany.contactPerson} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={companyForm.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Email</FormLabel>
-                      <FormControl>
-                        <Input type="email" {...field} value={editingCompany.email} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={companyForm.control}
-                  name="phone"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Phone</FormLabel>
-                      <FormControl>
-                        <Input {...field} value={editingCompany.phone} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <div className="flex justify-end gap-2">
-                  <Button type="button" variant="outline" onClick={() => setEditingCompany(null)}>
-                    Cancel
-                  </Button>
-                  <Button type="submit">Save Changes</Button>
-                </div>
-              </form>
-            </Form>
-          )}
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }
