@@ -12,7 +12,8 @@ export async function registerTalent(data: InsertTalent) {
   });
   
   if (!response.ok) {
-    throw new Error("Failed to register talent");
+    const error = await response.json();
+    throw new Error(error.error || "Failed to register talent");
   }
   
   return response.json();
@@ -28,7 +29,8 @@ export async function registerCompany(data: InsertCompany) {
   });
   
   if (!response.ok) {
-    throw new Error("Failed to register company");
+    const error = await response.json();
+    throw new Error(error.error || "Failed to register company");
   }
   
   return response.json();

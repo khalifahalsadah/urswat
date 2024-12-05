@@ -56,10 +56,10 @@ export default function LandingPage() {
       });
       talentForm.reset();
     },
-    onError: () => {
+    onError: (error: Error) => {
       toast({
         title: "Registration failed",
-        description: "Please try again later",
+        description: error.message,
         variant: "destructive",
       });
     },
@@ -74,10 +74,10 @@ export default function LandingPage() {
       });
       companyForm.reset();
     },
-    onError: () => {
+    onError: (error: Error) => {
       toast({
         title: "Registration failed",
-        description: "Please try again later",
+        description: error.message,
         variant: "destructive",
       });
     },
