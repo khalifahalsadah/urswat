@@ -2,17 +2,48 @@ import type { Express } from "express";
 import { eq } from "drizzle-orm";
 import { db } from "../db";
 import { talents, companies } from "@db/schema";
+import multer from "multer";
+import path from "path";
+
+// Configure multer for handling file uploads
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'uploads/');
+  },
+  filename: function (req, file, cb) {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, uniqueSuffix + path.extname(file.originalname));
+  }
+});
+
+const upload = multer({ 
+  storage: storage,
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype === 'application/pdf') {
+      cb(null, true);
+    } else {
+      cb(new Error('Only PDF files are allowed'));
+    }
+  }
+});
 
 export function registerRoutes(app: Express) {
   // Create talent
-  app.post("/api/talents", async (req, res) => {
+  app.post("/api/talents", upload.single('cv'), async (req, res) => {
     try {
-      const talent = await db.insert(talents).values(req.body).returning();
+      const cvPath = req.file ? req.file.filename : null;
+      const talentData = {
+        ...req.body,
+        cvPath
+      };
+      
+      const talent = await db.insert(talents).values(talentData).returning();
       res.json(talent[0]);
     } catch (error: any) {
       if (error.code === '23505') { // PostgreSQL unique violation error code
         res.status(400).json({ error: "Email already registered" });
       } else {
+        console.error('Error registering talent:', error);
         res.status(500).json({ error: "Failed to register talent" });
       }
     }

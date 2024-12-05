@@ -307,8 +307,7 @@ export default function LandingPage() {
                                 onChange={(e) => {
                                   const file = e.target.files?.[0];
                                   if (file) {
-                                    // Handle file upload here
-                                    field.onChange(file.name);
+                                    talentForm.setValue('cvFile', file as any);
                                   }
                                 }}
                               />

@@ -2,13 +2,24 @@ import { InsertTalent, InsertCompany } from "@db/schema";
 
 const API_BASE = "/api";
 
-export async function registerTalent(data: InsertTalent) {
+export async function registerTalent(data: InsertTalent & { cvFile?: File }) {
+  const formData = new FormData();
+  
+  // Add all text fields to formData
+  Object.entries(data).forEach(([key, value]) => {
+    if (key !== 'cvFile' && value !== undefined) {
+      formData.append(key, value.toString());
+    }
+  });
+  
+  // Add the CV file if it exists
+  if (data.cvFile) {
+    formData.append('cv', data.cvFile);
+  }
+  
   const response = await fetch(`${API_BASE}/talents`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(data),
+    body: formData,
   });
   
   if (!response.ok) {
