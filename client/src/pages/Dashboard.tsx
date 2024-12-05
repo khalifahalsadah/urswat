@@ -99,6 +99,50 @@ export default function Dashboard() {
     }
   };
 
+  const talentsQuery = useQuery({
+    queryKey: ["talents"],
+    queryFn: fetchTalents,
+  });
+
+  const companiesQuery = useQuery({
+    queryKey: ["companies"],
+    queryFn: fetchCompanies,
+  });
+
+  const deleteTalentMutation = useMutation({
+    mutationFn: deleteTalent,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["talents"] });
+      toast({ title: "Talent deleted successfully" });
+    },
+    onError: () => {
+      toast({ title: "Failed to delete talent", variant: "destructive" });
+    },
+  });
+
+  const deleteCompanyMutation = useMutation({
+    mutationFn: deleteCompany,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["companies"] });
+      toast({ title: "Company deleted successfully" });
+    },
+    onError: () => {
+      toast({ title: "Failed to delete company", variant: "destructive" });
+    },
+  });
+
+  const handleDeleteTalent = (id: number) => {
+    if (confirm("Are you sure you want to delete this talent?")) {
+      deleteTalentMutation.mutate(id);
+    }
+  };
+
+  const handleDeleteCompany = (id: number) => {
+    if (confirm("Are you sure you want to delete this company?")) {
+      deleteCompanyMutation.mutate(id);
+    }
+  };
+
   const talentForm = useForm<InsertTalent>({
     resolver: zodResolver(insertTalentSchema),
     defaultValues: {
@@ -339,22 +383,104 @@ export default function Dashboard() {
           {/* Other tabs content */}
           <TabsContent value="talents">
             <Card>
-              <CardHeader>
-                <CardTitle>Talents Management</CardTitle>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-xl font-bold">Registered Talents</CardTitle>
               </CardHeader>
               <CardContent>
-                <p>Talents management content here</p>
+                {talentsQuery.isLoading ? (
+                  <p>Loading talents...</p>
+                ) : talentsQuery.error ? (
+                  <p className="text-red-500">Error loading talents</p>
+                ) : (
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Full Name</TableHead>
+                        <TableHead>Email</TableHead>
+                        <TableHead>Phone</TableHead>
+                        <TableHead>CV</TableHead>
+                        <TableHead>Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {talentsQuery.data?.map((talent) => (
+                        <TableRow key={talent.id}>
+                          <TableCell>{talent.fullName}</TableCell>
+                          <TableCell>{talent.email}</TableCell>
+                          <TableCell>{talent.phone}</TableCell>
+                          <TableCell>
+                            {talent.cvPath ? (
+                              <a href={`/uploads/${talent.cvPath}`} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                                View CV
+                              </a>
+                            ) : (
+                              "No CV uploaded"
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex gap-2">
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => handleDeleteTalent(talent.id)}
+                              >
+                                Delete
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
 
           <TabsContent value="companies">
             <Card>
-              <CardHeader>
-                <CardTitle>Companies Management</CardTitle>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-xl font-bold">Registered Companies</CardTitle>
               </CardHeader>
               <CardContent>
-                <p>Companies management content here</p>
+                {companiesQuery.isLoading ? (
+                  <p>Loading companies...</p>
+                ) : companiesQuery.error ? (
+                  <p className="text-red-500">Error loading companies</p>
+                ) : (
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Company Name</TableHead>
+                        <TableHead>Contact Person</TableHead>
+                        <TableHead>Email</TableHead>
+                        <TableHead>Phone</TableHead>
+                        <TableHead>Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {companiesQuery.data?.map((company) => (
+                        <TableRow key={company.id}>
+                          <TableCell>{company.companyName}</TableCell>
+                          <TableCell>{company.contactPerson}</TableCell>
+                          <TableCell>{company.email}</TableCell>
+                          <TableCell>{company.phone}</TableCell>
+                          <TableCell>
+                            <div className="flex gap-2">
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => handleDeleteCompany(company.id)}
+                              >
+                                Delete
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                )}
               </CardContent>
             </Card>
           </TabsContent>

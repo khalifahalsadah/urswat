@@ -103,14 +103,7 @@ export default function LandingPage() {
             Connecting exceptional talent with innovative companies. Your next opportunity awaits.
           </p>
           <div className="flex justify-center items-center">
-            <Button 
-              asChild
-              variant="outline" 
-              size="lg" 
-              className="bg-white/10 hover:bg-white/20 border-white/20"
-            >
-              <a href="/login">Login to Dashboard</a>
-            </Button>
+            {/* Login removed - internal access only */}
           </div>
         </div>
       </section>
