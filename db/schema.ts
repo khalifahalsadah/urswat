@@ -9,6 +9,7 @@ export const talents = pgTable("talents", {
   phone: text("phone").notNull(),
   skills: text("skills").notNull(),
   experience: text("experience").notNull(),
+  status: text("status").notNull().default("lead"),
   createdAt: timestamp("created_at").defaultNow()
 });
 
@@ -20,6 +21,7 @@ export const companies = pgTable("companies", {
   phone: text("phone").notNull(),
   industry: text("industry").notNull(),
   requirements: text("requirements").notNull(),
+  status: text("status").notNull().default("lead"),
   createdAt: timestamp("created_at").defaultNow()
 });
 

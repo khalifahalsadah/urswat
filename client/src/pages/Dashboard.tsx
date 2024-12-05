@@ -1,8 +1,12 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { fetchTalents, fetchCompanies } from "../lib/api";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { fetchTalents, fetchCompanies, updateTalent, updateCompany, deleteTalent, deleteCompany } from "../lib/api";
 import type { Talent, Company } from "@db/schema";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
 import {
   Table,
   TableBody,
@@ -15,6 +19,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function Dashboard() {
   const [activeTab, setActiveTab] = useState("talents");
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   const talentsQuery = useQuery({
     queryKey: ["talents"],
@@ -25,6 +31,62 @@ export default function Dashboard() {
     queryKey: ["companies"],
     queryFn: fetchCompanies,
   });
+
+  const updateTalentMutation = useMutation({
+    mutationFn: ({ id, status }: { id: number, status: string }) => updateTalent(id, { status }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["talents"] });
+      toast({ title: "Status updated successfully" });
+    },
+    onError: () => {
+      toast({ title: "Failed to update status", variant: "destructive" });
+    },
+  });
+
+  const updateCompanyMutation = useMutation({
+    mutationFn: ({ id, status }: { id: number, status: string }) => updateCompany(id, { status }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["companies"] });
+      toast({ title: "Status updated successfully" });
+    },
+    onError: () => {
+      toast({ title: "Failed to update status", variant: "destructive" });
+    },
+  });
+
+  const deleteTalentMutation = useMutation({
+    mutationFn: deleteTalent,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["talents"] });
+      toast({ title: "Talent deleted successfully" });
+    },
+    onError: () => {
+      toast({ title: "Failed to delete talent", variant: "destructive" });
+    },
+  });
+
+  const deleteCompanyMutation = useMutation({
+    mutationFn: deleteCompany,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["companies"] });
+      toast({ title: "Company deleted successfully" });
+    },
+    onError: () => {
+      toast({ title: "Failed to delete company", variant: "destructive" });
+    },
+  });
+
+  const handleDeleteTalent = (id: number) => {
+    if (confirm("Are you sure you want to delete this talent?")) {
+      deleteTalentMutation.mutate(id);
+    }
+  };
+
+  const handleDeleteCompany = (id: number) => {
+    if (confirm("Are you sure you want to delete this company?")) {
+      deleteCompanyMutation.mutate(id);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
@@ -56,7 +118,9 @@ export default function Dashboard() {
                         <TableHead>Phone</TableHead>
                         <TableHead>Skills</TableHead>
                         <TableHead>Experience</TableHead>
+                        <TableHead>Status</TableHead>
                         <TableHead>Registered At</TableHead>
+                        <TableHead>Actions</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -68,7 +132,36 @@ export default function Dashboard() {
                           <TableCell>{talent.skills}</TableCell>
                           <TableCell>{talent.experience}</TableCell>
                           <TableCell>
+                            <Select
+                              value={talent.status}
+                              onValueChange={(value) => 
+                                updateTalentMutation.mutate({ id: talent.id, status: value })
+                              }
+                            >
+                              <SelectTrigger>
+                                <SelectValue>{talent.status}</SelectValue>
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="lead">Lead</SelectItem>
+                                <SelectItem value="contacted">Contacted</SelectItem>
+                                <SelectItem value="client">Client</SelectItem>
+                                <SelectItem value="discarded">Discarded</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </TableCell>
+                          <TableCell>
                             {new Date(talent.createdAt!).toLocaleDateString()}
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex gap-2">
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => handleDeleteTalent(talent.id)}
+                              >
+                                Delete
+                              </Button>
+                            </div>
                           </TableCell>
                         </TableRow>
                       ))}
@@ -99,7 +192,9 @@ export default function Dashboard() {
                         <TableHead>Phone</TableHead>
                         <TableHead>Industry</TableHead>
                         <TableHead>Requirements</TableHead>
+                        <TableHead>Status</TableHead>
                         <TableHead>Registered At</TableHead>
+                        <TableHead>Actions</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -112,7 +207,36 @@ export default function Dashboard() {
                           <TableCell>{company.industry}</TableCell>
                           <TableCell>{company.requirements}</TableCell>
                           <TableCell>
+                            <Select
+                              value={company.status}
+                              onValueChange={(value) => 
+                                updateCompanyMutation.mutate({ id: company.id, status: value })
+                              }
+                            >
+                              <SelectTrigger>
+                                <SelectValue>{company.status}</SelectValue>
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="lead">Lead</SelectItem>
+                                <SelectItem value="contacted">Contacted</SelectItem>
+                                <SelectItem value="client">Client</SelectItem>
+                                <SelectItem value="discarded">Discarded</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </TableCell>
+                          <TableCell>
                             {new Date(company.createdAt!).toLocaleDateString()}
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex gap-2">
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => handleDeleteCompany(company.id)}
+                              >
+                                Delete
+                              </Button>
+                            </div>
                           </TableCell>
                         </TableRow>
                       ))}
