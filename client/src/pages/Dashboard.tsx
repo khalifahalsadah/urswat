@@ -171,8 +171,8 @@ export default function Dashboard() {
 
           <TabsContent value="talents" className="mt-6">
             <Card>
-              <CardHeader className="flex justify-between items-center">
-                <CardTitle>Registered Talents</CardTitle>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-xl font-bold">Registered Talents</CardTitle>
                 <Dialog>
                   <DialogTrigger asChild>
                     <Button>Add Talent</Button>
@@ -334,8 +334,8 @@ export default function Dashboard() {
 
           <TabsContent value="companies" className="mt-6">
             <Card>
-              <CardHeader className="flex justify-between items-center">
-                <CardTitle>Registered Companies</CardTitle>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-xl font-bold">Registered Companies</CardTitle>
                 <Dialog>
                   <DialogTrigger asChild>
                     <Button>Add Company</Button>
@@ -534,13 +534,64 @@ export default function Dashboard() {
                     <FormItem>
                       <FormLabel>Full Name</FormLabel>
                       <FormControl>
-                        <Input {...field} defaultValue={editingTalent.fullName} />
+                        <Input {...field} value={editingTalent.fullName} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-                {/* Add other talent fields similarly */}
+                <FormField
+                  control={talentForm.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Email</FormLabel>
+                      <FormControl>
+                        <Input type="email" {...field} value={editingTalent.email} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={talentForm.control}
+                  name="phone"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Phone</FormLabel>
+                      <FormControl>
+                        <Input {...field} value={editingTalent.phone} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={talentForm.control}
+                  name="skills"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Skills</FormLabel>
+                      <FormControl>
+                        <Textarea {...field} value={editingTalent.skills} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={talentForm.control}
+                  name="experience"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Experience</FormLabel>
+                      <FormControl>
+                        <Textarea {...field} value={editingTalent.experience} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
                 <div className="flex justify-end gap-2">
                   <Button type="button" variant="outline" onClick={() => setEditingTalent(null)}>
                     Cancel
@@ -575,13 +626,77 @@ export default function Dashboard() {
                     <FormItem>
                       <FormLabel>Company Name</FormLabel>
                       <FormControl>
-                        <Input {...field} defaultValue={editingCompany.companyName} />
+                        <Input {...field} value={editingCompany.companyName} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-                {/* Add other company fields similarly */}
+                <FormField
+                  control={companyForm.control}
+                  name="contactPerson"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Contact Person</FormLabel>
+                      <FormControl>
+                        <Input {...field} value={editingCompany.contactPerson} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={companyForm.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Email</FormLabel>
+                      <FormControl>
+                        <Input type="email" {...field} value={editingCompany.email} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={companyForm.control}
+                  name="phone"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Phone</FormLabel>
+                      <FormControl>
+                        <Input {...field} value={editingCompany.phone} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={companyForm.control}
+                  name="industry"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Industry</FormLabel>
+                      <FormControl>
+                        <Input {...field} value={editingCompany.industry} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={companyForm.control}
+                  name="requirements"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Requirements</FormLabel>
+                      <FormControl>
+                        <Textarea {...field} value={editingCompany.requirements} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
                 <div className="flex justify-end gap-2">
                   <Button type="button" variant="outline" onClick={() => setEditingCompany(null)}>
                     Cancel
