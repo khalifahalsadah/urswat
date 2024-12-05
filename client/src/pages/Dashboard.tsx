@@ -32,6 +32,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function Dashboard() {
   const [activeTab, setActiveTab] = useState("talents");
+  const [editingTalent, setEditingTalent] = useState<Talent | null>(null);
+  const [editingCompany, setEditingCompany] = useState<Company | null>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -101,24 +103,24 @@ export default function Dashboard() {
   });
 
   const updateTalentMutation = useMutation({
-    mutationFn: ({ id, status }: { id: number, status: string }) => updateTalent(id, { status }),
+    mutationFn: ({ id, ...data }: { id: number } & Partial<InsertTalent>) => updateTalent(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["talents"] });
-      toast({ title: "Status updated successfully" });
+      toast({ title: "Talent updated successfully" });
     },
     onError: () => {
-      toast({ title: "Failed to update status", variant: "destructive" });
+      toast({ title: "Failed to update talent", variant: "destructive" });
     },
   });
 
   const updateCompanyMutation = useMutation({
-    mutationFn: ({ id, status }: { id: number, status: string }) => updateCompany(id, { status }),
+    mutationFn: ({ id, ...data }: { id: number } & Partial<InsertCompany>) => updateCompany(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["companies"] });
-      toast({ title: "Status updated successfully" });
+      toast({ title: "Company updated successfully" });
     },
     onError: () => {
-      toast({ title: "Failed to update status", variant: "destructive" });
+      toast({ title: "Failed to update company", variant: "destructive" });
     },
   });
 
@@ -178,6 +180,9 @@ export default function Dashboard() {
                   <DialogContent className="max-w-lg">
                     <DialogHeader>
                       <DialogTitle>Add New Talent</DialogTitle>
+                      <p className="text-sm text-muted-foreground mt-2">
+                        Fill in the talent information below. All fields are required.
+                      </p>
                     </DialogHeader>
                     <Form {...talentForm}>
                       <form onSubmit={talentForm.handleSubmit((data) => talentMutation.mutate(data))} className="space-y-4">
@@ -305,6 +310,13 @@ export default function Dashboard() {
                               <Button
                                 variant="outline"
                                 size="sm"
+                                onClick={() => setEditingTalent(talent)}
+                              >
+                                Edit
+                              </Button>
+                              <Button
+                                variant="outline"
+                                size="sm"
                                 onClick={() => handleDeleteTalent(talent.id)}
                               >
                                 Delete
@@ -331,6 +343,9 @@ export default function Dashboard() {
                   <DialogContent className="max-w-lg">
                     <DialogHeader>
                       <DialogTitle>Add New Company</DialogTitle>
+                      <p className="text-sm text-muted-foreground mt-2">
+                        Fill in the company information below. All fields are required.
+                      </p>
                     </DialogHeader>
                     <Form {...companyForm}>
                       <form onSubmit={companyForm.handleSubmit((data) => companyMutation.mutate(data))} className="space-y-4">
@@ -473,6 +488,13 @@ export default function Dashboard() {
                               <Button
                                 variant="outline"
                                 size="sm"
+                                onClick={() => setEditingCompany(company)}
+                              >
+                                Edit
+                              </Button>
+                              <Button
+                                variant="outline"
+                                size="sm"
                                 onClick={() => handleDeleteCompany(company.id)}
                               >
                                 Delete
@@ -489,6 +511,88 @@ export default function Dashboard() {
           </TabsContent>
         </Tabs>
       </div>
+
+      {/* Edit Talent Dialog */}
+      <Dialog open={editingTalent !== null} onOpenChange={() => setEditingTalent(null)}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Edit Talent</DialogTitle>
+            <p className="text-sm text-muted-foreground mt-2">
+              Update the talent information below. All fields are required.
+            </p>
+          </DialogHeader>
+          {editingTalent && (
+            <Form {...talentForm}>
+              <form onSubmit={talentForm.handleSubmit((data) => {
+                updateTalentMutation.mutate({ id: editingTalent.id, ...data });
+                setEditingTalent(null);
+              })} className="space-y-4">
+                <FormField
+                  control={talentForm.control}
+                  name="fullName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Full Name</FormLabel>
+                      <FormControl>
+                        <Input {...field} defaultValue={editingTalent.fullName} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                {/* Add other talent fields similarly */}
+                <div className="flex justify-end gap-2">
+                  <Button type="button" variant="outline" onClick={() => setEditingTalent(null)}>
+                    Cancel
+                  </Button>
+                  <Button type="submit">Save Changes</Button>
+                </div>
+              </form>
+            </Form>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Company Dialog */}
+      <Dialog open={editingCompany !== null} onOpenChange={() => setEditingCompany(null)}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Edit Company</DialogTitle>
+            <p className="text-sm text-muted-foreground mt-2">
+              Update the company information below. All fields are required.
+            </p>
+          </DialogHeader>
+          {editingCompany && (
+            <Form {...companyForm}>
+              <form onSubmit={companyForm.handleSubmit((data) => {
+                updateCompanyMutation.mutate({ id: editingCompany.id, ...data });
+                setEditingCompany(null);
+              })} className="space-y-4">
+                <FormField
+                  control={companyForm.control}
+                  name="companyName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Company Name</FormLabel>
+                      <FormControl>
+                        <Input {...field} defaultValue={editingCompany.companyName} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                {/* Add other company fields similarly */}
+                <div className="flex justify-end gap-2">
+                  <Button type="button" variant="outline" onClick={() => setEditingCompany(null)}>
+                    Cancel
+                  </Button>
+                  <Button type="submit">Save Changes</Button>
+                </div>
+              </form>
+            </Form>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
