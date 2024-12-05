@@ -102,8 +102,29 @@ export default function LandingPage() {
           <p className="text-2xl mb-12 leading-relaxed font-light">
             Connecting exceptional talent with innovative companies. Your next opportunity awaits.
           </p>
-          <div className="flex justify-center items-center">
-            {/* Login removed - internal access only */}
+          <div className="flex gap-6 justify-center items-center">
+            <Button 
+              variant="outline" 
+              size="lg" 
+              className="bg-white/10 hover:bg-white/20 border-white/20"
+              onClick={() => {
+                setActiveTab("talent");
+                document.querySelector(".registration-section")?.scrollIntoView({ behavior: "smooth" });
+              }}
+            >
+              I'm a Talent
+            </Button>
+            <Button 
+              variant="outline" 
+              size="lg" 
+              className="bg-white/10 hover:bg-white/20 border-white/20"
+              onClick={() => {
+                setActiveTab("company");
+                document.querySelector(".registration-section")?.scrollIntoView({ behavior: "smooth" });
+              }}
+            >
+              I'm a Company
+            </Button>
           </div>
         </div>
       </section>
