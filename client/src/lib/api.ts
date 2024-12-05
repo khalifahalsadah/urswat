@@ -2,6 +2,91 @@ import { InsertTalent, InsertCompany } from "@db/schema";
 
 const API_BASE = "/api";
 
+import { InsertUser } from "@db/schema";
+
+// Auth functions
+export async function login(email: string, password: string) {
+  const response = await fetch(`${API_BASE}/auth/login`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ email, password }),
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || "Failed to login");
+  }
+
+  const data = await response.json();
+  localStorage.setItem("token", data.token);
+  return data;
+}
+
+export async function register(data: InsertUser) {
+  const response = await fetch(`${API_BASE}/auth/register`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || "Failed to register");
+  }
+
+  return response.json();
+}
+
+export async function fetchUsers() {
+  const token = localStorage.getItem("token");
+  const response = await fetch(`${API_BASE}/users`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch users");
+  }
+  return response.json();
+}
+
+export async function updateUser(id: number, data: Partial<InsertUser>) {
+  const token = localStorage.getItem("token");
+  const response = await fetch(`${API_BASE}/users/${id}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(data),
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to update user");
+  }
+  return response.json();
+}
+
+export async function deleteUser(id: number) {
+  const token = localStorage.getItem("token");
+  const response = await fetch(`${API_BASE}/users/${id}`, {
+    method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to delete user");
+  }
+  return response.json();
+}
+
 export async function registerTalent(data: InsertTalent & { cvFile?: File }) {
   const formData = new FormData();
   

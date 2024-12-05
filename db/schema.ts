@@ -27,7 +27,21 @@ export const selectTalentSchema = createSelectSchema(talents);
 export type InsertTalent = z.infer<typeof insertTalentSchema>;
 export type Talent = z.infer<typeof selectTalentSchema>;
 
+export const users = pgTable("users", {
+  id: integer().primaryKey().generatedAlwaysAsIdentity(),
+  name: text("name").notNull(),
+  email: text("email").unique().notNull(),
+  phone: text("phone").notNull(),
+  password: text("password").notNull(),
+  createdAt: timestamp("created_at").defaultNow()
+});
+
 export const insertCompanySchema = createInsertSchema(companies);
 export const selectCompanySchema = createSelectSchema(companies);
 export type InsertCompany = z.infer<typeof insertCompanySchema>;
 export type Company = z.infer<typeof selectCompanySchema>;
+
+export const insertUserSchema = createInsertSchema(users);
+export const selectUserSchema = createSelectSchema(users);
+export type InsertUser = z.infer<typeof insertUserSchema>;
+export type User = z.infer<typeof selectUserSchema>;

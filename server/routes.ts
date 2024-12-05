@@ -1,7 +1,9 @@
 import type { Express } from "express";
 import { eq } from "drizzle-orm";
 import { db } from "../db";
-import { talents, companies } from "@db/schema";
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
+import { talents, companies, users } from "@db/schema";
 import multer from "multer";
 import path from "path";
 
@@ -27,7 +29,133 @@ const upload = multer({
   }
 });
 
+// Middleware to verify JWT token
+const authenticateToken = (req: any, res: any, next: any) => {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
+
+  if (!token) return res.status(401).json({ error: "Access denied" });
+
+  jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key', (err: any, user: any) => {
+    if (err) return res.status(403).json({ error: "Invalid token" });
+    req.user = user;
+    next();
+  });
+};
+
 export function registerRoutes(app: Express) {
+  // User registration
+  app.post("/api/auth/register", async (req, res) => {
+    try {
+      const { name, email, phone, password } = req.body;
+      const hashedPassword = await bcrypt.hash(password, 10);
+      
+      const user = await db.insert(users)
+        .values({
+          name,
+          email,
+          phone,
+          password: hashedPassword,
+        })
+        .returning();
+      
+      res.json({ message: "User registered successfully" });
+    } catch (error: any) {
+      if (error.code === '23505') {
+        res.status(400).json({ error: "Email already registered" });
+      } else {
+        res.status(500).json({ error: "Failed to register user" });
+      }
+    }
+  });
+
+  // User login
+  app.post("/api/auth/login", async (req, res) => {
+    try {
+      const { email, password } = req.body;
+      const userResult = await db.query.users.findFirst({
+        where: (users, { eq }) => eq(users.email, email)
+      });
+
+      if (!userResult) {
+        return res.status(400).json({ error: "User not found" });
+      }
+
+      const validPassword = await bcrypt.compare(password, userResult.password);
+      if (!validPassword) {
+        return res.status(400).json({ error: "Invalid password" });
+      }
+
+      const token = jwt.sign(
+        { id: userResult.id, email: userResult.email },
+        process.env.JWT_SECRET || 'your-secret-key',
+        { expiresIn: '24h' }
+      );
+
+      res.json({ token });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to login" });
+    }
+  });
+
+  // Get all users (protected route)
+  app.get("/api/users", authenticateToken, async (req, res) => {
+    try {
+      const allUsers = await db.query.users.findMany({
+        orderBy: (users, { desc }) => [desc(users.createdAt)]
+      });
+      // Remove password from response
+      const usersWithoutPasswords = allUsers.map(user => {
+        const { password, ...userWithoutPassword } = user;
+        return userWithoutPassword;
+      });
+      res.json(usersWithoutPasswords);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch users" });
+    }
+  });
+
+  // Delete user (protected route)
+  app.delete("/api/users/:id", authenticateToken, async (req, res) => {
+    try {
+      const user = await db.delete(users)
+        .where(eq(users.id, Number(req.params.id)))
+        .returning();
+      
+      if (!user.length) {
+        return res.status(404).json({ error: "User not found" });
+      }
+      res.json({ message: "User deleted successfully" });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to delete user" });
+    }
+  });
+
+  // Update user (protected route)
+  app.put("/api/users/:id", authenticateToken, async (req, res) => {
+    try {
+      const { name, email, phone, password } = req.body;
+      const updateData: any = { name, email, phone };
+      
+      if (password) {
+        updateData.password = await bcrypt.hash(password, 10);
+      }
+
+      const user = await db.update(users)
+        .set(updateData)
+        .where(eq(users.id, Number(req.params.id)))
+        .returning();
+      
+      if (!user.length) {
+        return res.status(404).json({ error: "User not found" });
+      }
+      
+      const { password: _, ...userWithoutPassword } = user[0];
+      res.json(userWithoutPassword);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to update user" });
+    }
+  });
   // Create talent
   app.post("/api/talents", upload.single('cv'), async (req, res) => {
     try {
