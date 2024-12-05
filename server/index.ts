@@ -2,7 +2,6 @@ import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic } from "./vite";
 import { createServer } from "http";
-import rateLimit from 'express-rate-limit';
 
 function log(message: string) {
   const formattedTime = new Date().toLocaleTimeString("en-US", {
@@ -18,30 +17,6 @@ function log(message: string) {
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-
-// Rate limiting middleware
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // Limit each IP to 100 requests per windowMs
-  message: { error: "Too many requests from this IP, please try again later" },
-  standardHeaders: true,
-  legacyHeaders: false,
-});
-
-// Apply rate limiting to all routes
-app.use(limiter);
-
-// More strict rate limiting for registration endpoints
-const registrationLimiter = rateLimit({
-  windowMs: 60 * 60 * 1000, // 1 hour
-  max: 5, // Limit each IP to 5 registration requests per hour
-  message: { error: "Too many registration attempts from this IP, please try again later" },
-  standardHeaders: true,
-  legacyHeaders: false,
-});
-
-// Apply stricter rate limiting to registration endpoints
-app.use(["/api/talents", "/api/companies"], registrationLimiter);
 
 app.use((req, res, next) => {
   const start = Date.now();
