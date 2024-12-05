@@ -54,8 +54,7 @@ export default function Dashboard() {
       contactPerson: "",
       email: "",
       phone: "",
-      industry: "",
-      requirements: "",
+      
     },
   });
 
@@ -403,32 +402,7 @@ export default function Dashboard() {
                             </FormItem>
                           )}
                         />
-                        <FormField
-                          control={companyForm.control}
-                          name="industry"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Industry</FormLabel>
-                              <FormControl>
-                                <Input {...field} />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        <FormField
-                          control={companyForm.control}
-                          name="requirements"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Requirements</FormLabel>
-                              <FormControl>
-                                <Textarea {...field} />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
+                        
                         <Button type="submit">Add Company</Button>
                       </form>
                     </Form>
@@ -448,8 +422,7 @@ export default function Dashboard() {
                         <TableHead>Contact Person</TableHead>
                         <TableHead>Email</TableHead>
                         <TableHead>Phone</TableHead>
-                        <TableHead>Industry</TableHead>
-                        <TableHead>Requirements</TableHead>
+                        
                         <TableHead>Status</TableHead>
                         <TableHead>Registered At</TableHead>
                         <TableHead>Actions</TableHead>
@@ -462,8 +435,7 @@ export default function Dashboard() {
                           <TableCell>{company.contactPerson}</TableCell>
                           <TableCell>{company.email}</TableCell>
                           <TableCell>{company.phone}</TableCell>
-                          <TableCell>{company.industry}</TableCell>
-                          <TableCell>{company.requirements}</TableCell>
+                          
                           <TableCell>
                             <Select
                               value={company.status}
@@ -670,32 +642,7 @@ export default function Dashboard() {
                     </FormItem>
                   )}
                 />
-                <FormField
-                  control={companyForm.control}
-                  name="industry"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Industry</FormLabel>
-                      <FormControl>
-                        <Input {...field} value={editingCompany.industry} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={companyForm.control}
-                  name="requirements"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Requirements</FormLabel>
-                      <FormControl>
-                        <Textarea {...field} value={editingCompany.requirements} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                
                 <div className="flex justify-end gap-2">
                   <Button type="button" variant="outline" onClick={() => setEditingCompany(null)}>
                     Cancel
