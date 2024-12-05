@@ -243,9 +243,9 @@ export default function LandingPage() {
         <div className="max-w-3xl mx-auto px-4">
           <h2 className="text-4xl font-bold text-center mb-16">Register Now</h2>
           <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="grid w-full grid-cols-2 mb-8 h-14 p-1 bg-gray-100">
-              <TabsTrigger value="talent" className="text-lg data-[state=active]:bg-white rounded-none">For Talents</TabsTrigger>
-              <TabsTrigger value="company" className="text-lg data-[state=active]:bg-white rounded-none">For Companies</TabsTrigger>
+            <TabsList className="grid w-full grid-cols-2 mb-8 h-14 p-1 bg-gray-100 rounded-lg">
+              <TabsTrigger value="talent" className="text-lg data-[state=active]:bg-white rounded-lg">For Talents</TabsTrigger>
+              <TabsTrigger value="company" className="text-lg data-[state=active]:bg-white rounded-lg">For Companies</TabsTrigger>
             </TabsList>
             
             <TabsContent value="talent">
