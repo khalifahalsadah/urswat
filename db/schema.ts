@@ -18,8 +18,6 @@ export const companies = pgTable("companies", {
   contactPerson: text("contact_person").notNull(),
   email: text("email").unique().notNull(),
   phone: text("phone").notNull(),
-  industry: text("industry").notNull(),
-  requirements: text("requirements").notNull(),
   status: text("status").notNull().default("lead"),
   createdAt: timestamp("created_at").defaultNow()
 });

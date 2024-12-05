@@ -41,8 +41,6 @@ export default function LandingPage() {
       contactPerson: "",
       email: "",
       phone: "",
-      industry: "",
-      requirements: "",
     },
   });
 
@@ -104,7 +102,10 @@ export default function LandingPage() {
           <p className="text-2xl mb-12 leading-relaxed font-light">
             Connecting exceptional talent with innovative companies. Your next opportunity awaits.
           </p>
-          <div className="flex gap-6 justify-center">
+          <div className="flex gap-6 justify-center items-center">
+            <a href="/dashboard" className="text-white hover:text-gray-200 mr-6">
+              Company Dashboard
+            </a>
             <Button 
               variant="outline" 
               size="lg" 
@@ -413,32 +414,7 @@ export default function LandingPage() {
                           </FormItem>
                         )}
                       />
-                      <FormField
-                        control={companyForm.control}
-                        name="industry"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Industry</FormLabel>
-                            <FormControl>
-                              <Input {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={companyForm.control}
-                        name="requirements"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Requirements</FormLabel>
-                            <FormControl>
-                              <Textarea {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
+                      
                       <div className="pt-4">
                         <Button 
                           type="submit" 
