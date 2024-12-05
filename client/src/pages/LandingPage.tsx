@@ -255,7 +255,7 @@ export default function LandingPage() {
                 </CardHeader>
                 <CardContent>
                   <Form {...talentForm}>
-                    <form onSubmit={talentForm.handleSubmit((data) => talentMutation.mutate(data))} className="space-y-4">
+                    <form onSubmit={talentForm.handleSubmit((data) => talentMutation.mutate(data))} className="space-y-8">
                       <FormField
                         control={talentForm.control}
                         name="fullName"
@@ -321,12 +321,14 @@ export default function LandingPage() {
                           </FormItem>
                         )}
                       />
-                      <Button 
-                        type="submit" 
-                        className="w-full bg-black text-white hover:bg-black/90 transition-all duration-300 py-6"
-                      >
-                        Register as Talent
-                      </Button>
+                      <div className="pt-4">
+                        <Button 
+                          type="submit" 
+                          className="w-full bg-black text-white hover:bg-black/90 transition-all duration-300 py-6"
+                        >
+                          Register as Talent
+                        </Button>
+                      </div>
                     </form>
                   </Form>
                 </CardContent>
@@ -340,7 +342,7 @@ export default function LandingPage() {
                 </CardHeader>
                 <CardContent>
                   <Form {...companyForm}>
-                    <form onSubmit={companyForm.handleSubmit((data) => companyMutation.mutate(data))} className="space-y-4">
+                    <form onSubmit={companyForm.handleSubmit((data) => companyMutation.mutate(data))} className="space-y-8">
                       <FormField
                         control={companyForm.control}
                         name="companyName"
@@ -419,12 +421,14 @@ export default function LandingPage() {
                           </FormItem>
                         )}
                       />
-                      <Button 
-                        type="submit" 
-                        className="w-full bg-black text-white hover:bg-black/90 transition-all duration-300 py-6"
-                      >
-                        Register Company
-                      </Button>
+                      <div className="pt-4">
+                        <Button 
+                          type="submit" 
+                          className="w-full bg-black text-white hover:bg-black/90 transition-all duration-300 py-6"
+                        >
+                          Register Company
+                        </Button>
+                      </div>
                     </form>
                   </Form>
                 </CardContent>
