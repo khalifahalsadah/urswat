@@ -50,7 +50,7 @@ export function registerRoutes(app: Express) {
       const { name, email, phone, password } = req.body;
       const hashedPassword = await bcrypt.hash(password, 10);
       
-      const user = await db.insert(users)
+      const [user] = await db.insert(users)
         .values({
           name,
           email,
