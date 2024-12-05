@@ -43,8 +43,7 @@ export default function Dashboard() {
       fullName: "",
       email: "",
       phone: "",
-      skills: "",
-      experience: "",
+      cvPath: "",
     },
   });
 
@@ -227,25 +226,22 @@ export default function Dashboard() {
                         />
                         <FormField
                           control={talentForm.control}
-                          name="skills"
+                          name="cvPath"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Skills</FormLabel>
+                              <FormLabel>Upload CV (PDF)</FormLabel>
                               <FormControl>
-                                <Textarea {...field} />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        <FormField
-                          control={talentForm.control}
-                          name="experience"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Experience</FormLabel>
-                              <FormControl>
-                                <Textarea {...field} />
+                                <Input 
+                                  type="file" 
+                                  accept=".pdf"
+                                  onChange={(e) => {
+                                    const file = e.target.files?.[0];
+                                    if (file) {
+                                      // Handle file upload here
+                                      field.onChange(file.name);
+                                    }
+                                  }}
+                                />
                               </FormControl>
                               <FormMessage />
                             </FormItem>
@@ -574,25 +570,22 @@ export default function Dashboard() {
                 />
                 <FormField
                   control={talentForm.control}
-                  name="skills"
+                  name="cvPath"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Skills</FormLabel>
+                      <FormLabel>Upload CV (PDF)</FormLabel>
                       <FormControl>
-                        <Textarea {...field} value={editingTalent.skills} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={talentForm.control}
-                  name="experience"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Experience</FormLabel>
-                      <FormControl>
-                        <Textarea {...field} value={editingTalent.experience} />
+                        <Input 
+                          type="file" 
+                          accept=".pdf"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) {
+                              // Handle file upload here
+                              field.onChange(file.name);
+                            }
+                          }}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
