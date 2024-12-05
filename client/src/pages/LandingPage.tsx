@@ -105,7 +105,10 @@ export default function LandingPage() {
               variant="outline" 
               size="lg" 
               className="bg-white/10 hover:bg-white/20 border-white/20"
-              onClick={() => setActiveTab("talent")}
+              onClick={() => {
+                setActiveTab("talent");
+                document.querySelector(".registration-section")?.scrollIntoView({ behavior: "smooth" });
+              }}
             >
               I'm a Talent
             </Button>
@@ -113,7 +116,10 @@ export default function LandingPage() {
               variant="outline" 
               size="lg" 
               className="bg-white/10 hover:bg-white/20 border-white/20"
-              onClick={() => setActiveTab("company")}
+              onClick={() => {
+                setActiveTab("company");
+                document.querySelector(".registration-section")?.scrollIntoView({ behavior: "smooth" });
+              }}
             >
               I'm a Company
             </Button>
@@ -233,7 +239,7 @@ export default function LandingPage() {
       </section>
 
       {/* Registration Forms */}
-      <section className="py-24 bg-white">
+      <section className="py-24 bg-white registration-section">
         <div className="max-w-3xl mx-auto px-4">
           <h2 className="text-4xl font-bold text-center mb-16">Register Now</h2>
           <Tabs value={activeTab} onValueChange={setActiveTab}>
@@ -315,7 +321,10 @@ export default function LandingPage() {
                           </FormItem>
                         )}
                       />
-                      <Button type="submit" className="w-full">
+                      <Button 
+                        type="submit" 
+                        className="w-full bg-black text-white hover:bg-black/90 transition-all duration-300 py-6"
+                      >
                         Register as Talent
                       </Button>
                     </form>
@@ -410,7 +419,10 @@ export default function LandingPage() {
                           </FormItem>
                         )}
                       />
-                      <Button type="submit" className="w-full">
+                      <Button 
+                        type="submit" 
+                        className="w-full bg-black text-white hover:bg-black/90 transition-all duration-300 py-6"
+                      >
                         Register Company
                       </Button>
                     </form>
