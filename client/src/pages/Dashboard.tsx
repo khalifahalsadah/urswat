@@ -1,12 +1,25 @@
 import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { fetchTalents, fetchCompanies, updateTalent, updateCompany, deleteTalent, deleteCompany } from "../lib/api";
-import type { Talent, Company } from "@db/schema";
+import { fetchTalents, fetchCompanies, updateTalent, updateCompany, deleteTalent, deleteCompany, registerTalent, registerCompany } from "../lib/api";
+import type { Talent, Company, InsertTalent, InsertCompany } from "@db/schema";
+import { insertTalentSchema, insertCompanySchema } from "@db/schema";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import {
   Table,
   TableBody,
@@ -21,6 +34,61 @@ export default function Dashboard() {
   const [activeTab, setActiveTab] = useState("talents");
   const { toast } = useToast();
   const queryClient = useQueryClient();
+
+  const talentForm = useForm<InsertTalent>({
+    resolver: zodResolver(insertTalentSchema),
+    defaultValues: {
+      fullName: "",
+      email: "",
+      phone: "",
+      skills: "",
+      experience: "",
+    },
+  });
+
+  const companyForm = useForm<InsertCompany>({
+    resolver: zodResolver(insertCompanySchema),
+    defaultValues: {
+      companyName: "",
+      contactPerson: "",
+      email: "",
+      phone: "",
+      industry: "",
+      requirements: "",
+    },
+  });
+
+  const talentMutation = useMutation({
+    mutationFn: registerTalent,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["talents"] });
+      toast({ title: "Talent added successfully" });
+      talentForm.reset();
+    },
+    onError: (error: Error) => {
+      toast({ 
+        title: "Failed to add talent", 
+        description: error.message,
+        variant: "destructive" 
+      });
+    },
+  });
+
+  const companyMutation = useMutation({
+    mutationFn: registerCompany,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["companies"] });
+      toast({ title: "Company added successfully" });
+      companyForm.reset();
+    },
+    onError: (error: Error) => {
+      toast({ 
+        title: "Failed to add company", 
+        description: error.message,
+        variant: "destructive" 
+      });
+    },
+  });
 
   const talentsQuery = useQuery({
     queryKey: ["talents"],
@@ -101,8 +169,88 @@ export default function Dashboard() {
 
           <TabsContent value="talents" className="mt-6">
             <Card>
-              <CardHeader>
+              <CardHeader className="flex justify-between items-center">
                 <CardTitle>Registered Talents</CardTitle>
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button>Add Talent</Button>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-lg">
+                    <DialogHeader>
+                      <DialogTitle>Add New Talent</DialogTitle>
+                    </DialogHeader>
+                    <Form {...talentForm}>
+                      <form onSubmit={talentForm.handleSubmit((data) => talentMutation.mutate(data))} className="space-y-4">
+                        <FormField
+                          control={talentForm.control}
+                          name="fullName"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Full Name</FormLabel>
+                              <FormControl>
+                                <Input {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={talentForm.control}
+                          name="email"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Email</FormLabel>
+                              <FormControl>
+                                <Input type="email" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={talentForm.control}
+                          name="phone"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Phone</FormLabel>
+                              <FormControl>
+                                <Input {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={talentForm.control}
+                          name="skills"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Skills</FormLabel>
+                              <FormControl>
+                                <Textarea {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={talentForm.control}
+                          name="experience"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Experience</FormLabel>
+                              <FormControl>
+                                <Textarea {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <Button type="submit">Add Talent</Button>
+                      </form>
+                    </Form>
+                  </DialogContent>
+                </Dialog>
               </CardHeader>
               <CardContent>
                 {talentsQuery.isLoading ? (
@@ -174,8 +322,101 @@ export default function Dashboard() {
 
           <TabsContent value="companies" className="mt-6">
             <Card>
-              <CardHeader>
+              <CardHeader className="flex justify-between items-center">
                 <CardTitle>Registered Companies</CardTitle>
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button>Add Company</Button>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-lg">
+                    <DialogHeader>
+                      <DialogTitle>Add New Company</DialogTitle>
+                    </DialogHeader>
+                    <Form {...companyForm}>
+                      <form onSubmit={companyForm.handleSubmit((data) => companyMutation.mutate(data))} className="space-y-4">
+                        <FormField
+                          control={companyForm.control}
+                          name="companyName"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Company Name</FormLabel>
+                              <FormControl>
+                                <Input {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={companyForm.control}
+                          name="contactPerson"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Contact Person</FormLabel>
+                              <FormControl>
+                                <Input {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={companyForm.control}
+                          name="email"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Email</FormLabel>
+                              <FormControl>
+                                <Input type="email" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={companyForm.control}
+                          name="phone"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Phone</FormLabel>
+                              <FormControl>
+                                <Input {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={companyForm.control}
+                          name="industry"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Industry</FormLabel>
+                              <FormControl>
+                                <Input {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={companyForm.control}
+                          name="requirements"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Requirements</FormLabel>
+                              <FormControl>
+                                <Textarea {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <Button type="submit">Add Company</Button>
+                      </form>
+                    </Form>
+                  </DialogContent>
+                </Dialog>
               </CardHeader>
               <CardContent>
                 {companiesQuery.isLoading ? (
