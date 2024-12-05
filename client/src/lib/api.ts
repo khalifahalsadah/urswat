@@ -35,3 +35,18 @@ export async function registerCompany(data: InsertCompany) {
   
   return response.json();
 }
+export async function fetchTalents() {
+  const response = await fetch(`${API_BASE}/talents`);
+  if (!response.ok) {
+    throw new Error("Failed to fetch talents");
+  }
+  return response.json();
+}
+
+export async function fetchCompanies() {
+  const response = await fetch(`${API_BASE}/companies`);
+  if (!response.ok) {
+    throw new Error("Failed to fetch companies");
+  }
+  return response.json();
+}
