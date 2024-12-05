@@ -1,16 +1,28 @@
-import type { Express } from "express";
-import { eq } from "drizzle-orm";
-import { db } from "../db";
-import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
-import { talents, companies, users } from "@db/schema";
-import multer from "multer";
+import express from "express";
 import path from "path";
+import { fileURLToPath } from 'url';
+import { eq } from "drizzle-orm";
+import { talents, companies, users } from "@db/schema";
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
+import type { Express } from "express";
+import fs from "fs";
+import { db } from "../db";
+import multer from "multer";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Ensure uploads directory exists
+const uploadDir = path.join(__dirname, '../uploads');
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+}
 
 // Configure multer for handling file uploads
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, 'uploads/');
+    cb(null, uploadDir);
   },
   filename: function (req, file, cb) {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
@@ -44,6 +56,9 @@ const authenticateToken = (req: any, res: any, next: any) => {
 };
 
 export function registerRoutes(app: Express) {
+  // Serve uploaded files
+  app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
+
   // User registration
   app.post("/api/auth/register", async (req, res) => {
     try {
