@@ -103,6 +103,9 @@ export default function LandingPage() {
             Connecting exceptional talent with innovative companies. Your next opportunity awaits.
           </p>
           <div className="flex gap-6 justify-center items-center">
+            <a href="/login" className="text-white hover:text-gray-200 mr-6">
+              Login to Dashboard
+            </a>
             <Button 
               variant="outline" 
               size="lg" 

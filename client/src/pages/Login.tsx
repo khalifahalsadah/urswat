@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useNavigate } from "wouter";
+import { useLocation } from "wouter";
 import { login } from "../lib/api";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
@@ -25,7 +25,7 @@ const loginSchema = z.object({
 type LoginForm = z.infer<typeof loginSchema>;
 
 export default function Login() {
-  const [, navigate] = useNavigate();
+  const [, setLocation] = useLocation();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
 
@@ -42,7 +42,7 @@ export default function Login() {
       setIsLoading(true);
       await login(data.email, data.password);
       toast({ title: "Login successful" });
-      navigate("/dashboard");
+      setLocation("/dashboard");
     } catch (error: any) {
       toast({
         title: "Login failed",
