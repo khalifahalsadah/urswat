@@ -86,51 +86,90 @@ export default function LandingPage() {
   return (
     <div className="min-h-screen bg-white">
       {/* Hero Section */}
-      <section className="relative h-[600px] flex items-center justify-center text-white">
+      <section className="relative h-[700px] flex items-center justify-center text-white">
         <div
-          className="absolute inset-0 bg-cover bg-center"
+          className="absolute inset-0 bg-cover bg-center bg-fixed"
           style={{
             backgroundImage: 'url("https://images.unsplash.com/photo-1522071820081-009f0129c71c")',
           }}
         >
-          <div className="absolute inset-0 bg-black/70" />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/80 to-black/90" />
         </div>
-        <div className="relative z-10 text-center max-w-3xl px-4">
-          <h1 className="text-5xl font-bold mb-6">Welcome to Urswat.com</h1>
-          <p className="text-xl mb-8">
-            Connecting exceptional talent with innovative companies
+        <div className="relative z-10 text-center max-w-4xl px-4">
+          <h1 className="text-6xl font-bold mb-8 tracking-tight">Welcome to Urswat.com</h1>
+          <p className="text-2xl mb-12 leading-relaxed font-light">
+            Connecting exceptional talent with innovative companies. Your next opportunity awaits.
           </p>
+          <div className="flex gap-6 justify-center">
+            <Button 
+              variant="outline" 
+              size="lg" 
+              className="bg-white/10 hover:bg-white/20 border-white/20"
+              onClick={() => setActiveTab("talent")}
+            >
+              I'm a Talent
+            </Button>
+            <Button 
+              variant="outline" 
+              size="lg" 
+              className="bg-white/10 hover:bg-white/20 border-white/20"
+              onClick={() => setActiveTab("company")}
+            >
+              I'm a Company
+            </Button>
+          </div>
         </div>
       </section>
 
       {/* Services Section */}
-      <section className="py-20 px-4">
+      <section className="py-24 px-4 bg-gray-50">
         <div className="max-w-6xl mx-auto">
-          <div className="grid md:grid-cols-2 gap-8">
-            <Card>
+          <h2 className="text-4xl font-bold text-center mb-16">Choose Your Path</h2>
+          <div className="grid md:grid-cols-2 gap-12">
+            <Card className="border-2 hover:border-black/20 transition-all duration-300">
               <CardHeader>
-                <CardTitle>For Talents</CardTitle>
+                <CardTitle className="text-2xl">For Talents</CardTitle>
               </CardHeader>
               <CardContent>
-                <img
-                  src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3"
-                  alt="Office Environment"
-                  className="w-full h-48 object-cover mb-4 rounded-lg"
-                />
-                <p>Find your dream company and take the next step in your career</p>
+                <div className="relative">
+                  <img
+                    src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3"
+                    alt="Office Environment"
+                    className="w-full h-56 object-cover rounded-lg"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent rounded-lg" />
+                </div>
+                <div className="mt-6 space-y-4">
+                  <p className="text-lg">Find your dream company and take the next step in your career</p>
+                  <ul className="space-y-2 text-gray-600">
+                    <li>• Showcase your skills and experience</li>
+                    <li>• Connect with leading companies</li>
+                    <li>• Fast-track your career growth</li>
+                  </ul>
+                </div>
               </CardContent>
             </Card>
-            <Card>
+            <Card className="border-2 hover:border-black/20 transition-all duration-300">
               <CardHeader>
-                <CardTitle>For Companies</CardTitle>
+                <CardTitle className="text-2xl">For Companies</CardTitle>
               </CardHeader>
               <CardContent>
-                <img
-                  src="https://images.unsplash.com/photo-1590650046871-92c887180603"
-                  alt="Diverse Workplace"
-                  className="w-full h-48 object-cover mb-4 rounded-lg"
-                />
-                <p>Connect with top talent to build your dream team</p>
+                <div className="relative">
+                  <img
+                    src="https://images.unsplash.com/photo-1590650046871-92c887180603"
+                    alt="Diverse Workplace"
+                    className="w-full h-56 object-cover rounded-lg"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent rounded-lg" />
+                </div>
+                <div className="mt-6 space-y-4">
+                  <p className="text-lg">Connect with top talent to build your dream team</p>
+                  <ul className="space-y-2 text-gray-600">
+                    <li>• Access a pool of qualified candidates</li>
+                    <li>• Streamlined recruitment process</li>
+                    <li>• Find the perfect match for your team</li>
+                  </ul>
+                </div>
               </CardContent>
             </Card>
           </div>
@@ -138,12 +177,13 @@ export default function LandingPage() {
       </section>
 
       {/* Registration Forms */}
-      <section className="py-20 bg-gray-50">
+      <section className="py-24 bg-white">
         <div className="max-w-3xl mx-auto px-4">
+          <h2 className="text-4xl font-bold text-center mb-16">Register Now</h2>
           <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="talent">For Talents</TabsTrigger>
-              <TabsTrigger value="company">For Companies</TabsTrigger>
+            <TabsList className="grid w-full grid-cols-2 mb-8">
+              <TabsTrigger value="talent" className="text-lg py-3">For Talents</TabsTrigger>
+              <TabsTrigger value="company" className="text-lg py-3">For Companies</TabsTrigger>
             </TabsList>
             
             <TabsContent value="talent">
