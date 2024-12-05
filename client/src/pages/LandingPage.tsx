@@ -176,6 +176,62 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* Services Section */}
+      <section className="py-24 px-4 bg-white">
+        <div className="max-w-6xl mx-auto">
+          <h2 className="text-4xl font-bold text-center mb-16">Our Services</h2>
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <Card className="border-2 hover:border-black/20 transition-all duration-300">
+              <CardHeader>
+                <div className="w-12 h-12 mb-4 bg-black text-white rounded-lg flex items-center justify-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/></svg>
+                </div>
+                <CardTitle className="text-xl">Talent Matching</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-600">Advanced algorithms to match your skills with the perfect opportunities in top companies.</p>
+              </CardContent>
+            </Card>
+
+            <Card className="border-2 hover:border-black/20 transition-all duration-300">
+              <CardHeader>
+                <div className="w-12 h-12 mb-4 bg-black text-white rounded-lg flex items-center justify-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/><path d="m9 16 2 2 4-4"/></svg>
+                </div>
+                <CardTitle className="text-xl">Interview Scheduling</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-600">Streamlined interview process with automated scheduling and reminders.</p>
+              </CardContent>
+            </Card>
+
+            <Card className="border-2 hover:border-black/20 transition-all duration-300">
+              <CardHeader>
+                <div className="w-12 h-12 mb-4 bg-black text-white rounded-lg flex items-center justify-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><path d="M8 13h8"/><path d="M8 17h8"/><path d="M8 9h2"/></svg>
+                </div>
+                <CardTitle className="text-xl">Resume Review</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-600">Expert review and optimization of your resume to highlight your strongest qualifications.</p>
+              </CardContent>
+            </Card>
+
+            <Card className="border-2 hover:border-black/20 transition-all duration-300">
+              <CardHeader>
+                <div className="w-12 h-12 mb-4 bg-black text-white rounded-lg flex items-center justify-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 18a2 2 0 0 0-2-2H9a2 2 0 0 0-2 2"/><rect width="18" height="18" x="3" y="4" rx="2"/><circle cx="12" cy="10" r="2"/><line x1="8" x2="8" y1="2" y2="4"/><line x1="16" x2="16" y1="2" y2="4"/></svg>
+                </div>
+                <CardTitle className="text-xl">Career Coaching</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-600">One-on-one guidance to help you navigate your career path and achieve your goals.</p>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </section>
+
       {/* Registration Forms */}
       <section className="py-24 bg-white">
         <div className="max-w-3xl mx-auto px-4">
