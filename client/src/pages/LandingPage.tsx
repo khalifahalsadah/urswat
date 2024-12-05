@@ -26,10 +26,25 @@ export default function LandingPage() {
 
   const talentForm = useForm<InsertTalent>({
     resolver: zodResolver(insertTalentSchema),
+    defaultValues: {
+      fullName: "",
+      email: "",
+      phone: "",
+      skills: "",
+      experience: "",
+    },
   });
 
   const companyForm = useForm<InsertCompany>({
     resolver: zodResolver(insertCompanySchema),
+    defaultValues: {
+      companyName: "",
+      contactPerson: "",
+      email: "",
+      phone: "",
+      industry: "",
+      requirements: "",
+    },
   });
 
   const talentMutation = useMutation({
