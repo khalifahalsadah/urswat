@@ -410,7 +410,12 @@ export default function Dashboard() {
                           <TableCell>{talent.phone}</TableCell>
                           <TableCell>
                             {talent.cvPath ? (
-                              <a href={`/uploads/${talent.cvPath}`} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                              <a 
+                                href={talent.cvPath.startsWith('http') ? talent.cvPath : `/uploads/${talent.cvPath}`} 
+                                target="_blank" 
+                                rel="noopener noreferrer" 
+                                className="text-blue-600 hover:underline"
+                              >
                                 View CV
                               </a>
                             ) : (

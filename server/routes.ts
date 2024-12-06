@@ -177,7 +177,7 @@ export function registerRoutes(app: Express) {
       const cvPath = req.file ? req.file.filename : null;
       const talentData = {
         ...req.body,
-        cvPath
+        cvPath: cvPath || ''  // Ensure we store empty string instead of null
       };
       
       const talent = await db.insert(talents).values(talentData).returning();
