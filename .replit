@@ -26,6 +26,10 @@ author = "agent"
 task = "workflow.run"
 args = "Start Development Server"
 
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Setup Admin User"
+
 [[workflows.workflow]]
 name = "Start Development Server"
 author = "agent"
@@ -40,3 +44,17 @@ task = "packager.installForAll"
 task = "shell.exec"
 args = "npm run dev"
 waitForPort = 5000
+
+[[workflows.workflow]]
+name = "Setup Admin User"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "packager.installForAll"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "tsx scripts/setup-admin.ts"
