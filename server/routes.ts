@@ -9,6 +9,7 @@ import type { Express } from "express";
 import fs from "fs";
 import { db } from "../db";
 import multer from "multer";
+import { sendTalentRegistrationEmail, sendCompanyRegistrationEmail } from './utils/email';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -218,6 +219,17 @@ export function registerRoutes(app: Express) {
 
       console.log('Talent saved successfully:', talent);
 
+      // Send welcome email
+      try {
+        await sendTalentRegistrationEmail({
+          fullName: talent.fullName,
+          email: talent.email,
+        });
+      } catch (emailError) {
+        console.error('Failed to send welcome email:', emailError);
+        // Continue with the response even if email fails
+      }
+
       const responseData = {
         ...talent,
         cvPath: cvPath ? `/uploads/${cvPath}` : ''
@@ -272,8 +284,21 @@ export function registerRoutes(app: Express) {
 
   app.post("/api/companies", async (req, res) => {
     try {
-      const company = await db.insert(companies).values(req.body).returning();
-      res.json(company[0]);
+      const [company] = await db.insert(companies).values(req.body).returning();
+      
+      // Send welcome email
+      try {
+        await sendCompanyRegistrationEmail({
+          companyName: company.companyName,
+          contactPerson: company.contactPerson,
+          email: company.email,
+        });
+      } catch (emailError) {
+        console.error('Failed to send welcome email:', emailError);
+        // Continue with the response even if email fails
+      }
+
+      res.json(company);
     } catch (error: any) {
       if (error.code === '23505') { // PostgreSQL unique violation error code
         res.status(400).json({ error: "Email already registered" });
