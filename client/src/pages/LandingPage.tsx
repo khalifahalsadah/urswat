@@ -260,19 +260,13 @@ export default function LandingPage() {
                 <CardContent>
                   <Form {...talentForm}>
                     <form 
-                      onSubmit={talentForm.handleSubmit((data) => {
-                        console.log('Form data:', data);
-                        const formData = new FormData();
-                        formData.append('fullName', data.fullName);
-                        formData.append('email', data.email);
-                        formData.append('phone', data.phone);
-                        if (data.cvFile?.[0]) {
-                          console.log('Attaching CV file:', data.cvFile[0]);
-                          formData.append('cv', data.cvFile[0]);
-                        }
+                      onSubmit={async (e) => {
+                        e.preventDefault();
+                        const formData = new FormData(e.currentTarget);
+                        console.log('Form data entries:', Array.from(formData.entries()));
                         talentMutation.mutate(formData);
-                      })} 
-                      className="space-y-8" 
+                      }}
+                      className="space-y-8"
                       encType="multipart/form-data"
                     >
                       <FormField
@@ -324,13 +318,16 @@ export default function LandingPage() {
                               <div className="flex flex-col gap-2">
                                 <Input
                                   type="file"
+                                  name="cv"
                                   accept=".pdf"
                                   onChange={(e) => {
-                                    const files = e.target.files;
-                                    console.log('Selected files:', files);
-                                    if (files?.length) {
-                                      talentForm.setValue('cvFile', files);
-                                      talentForm.setValue('cvPath', files[0].name);
+                                    const file = e.target.files?.[0];
+                                    if (file) {
+                                      console.log('Selected file:', {
+                                        name: file.name,
+                                        type: file.type,
+                                        size: file.size
+                                      });
                                     }
                                   }}
                                 />

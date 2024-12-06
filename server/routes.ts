@@ -20,23 +20,18 @@ if (!fs.existsSync(uploadDir)) {
 }
 
 // Configure multer for handling file uploads
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, uploadDir);
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: 5 * 1024 * 1024, // 5MB limit
   },
-  filename: function (req, file, cb) {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, uniqueSuffix + path.extname(file.originalname));
-  }
-});
-
-const upload = multer({ 
-  storage: storage,
   fileFilter: (req, file, cb) => {
-    if (file.mimetype === 'application/pdf') {
+    console.log('Received file:', file);
+    const allowedMimes = ['application/pdf'];
+    if (allowedMimes.includes(file.mimetype)) {
       cb(null, true);
     } else {
-      cb(new Error('Only PDF files are allowed'));
+      cb(new Error(`Invalid file type. Only PDF files are allowed. Got: ${file.mimetype}`));
     }
   }
 });
@@ -176,25 +171,46 @@ export function registerRoutes(app: Express) {
     try {
       console.log('Received talent registration request:', {
         body: req.body,
-        file: req.file,
-        headers: req.headers['content-type']
+        fileInfo: req.file ? {
+          fieldname: req.file.fieldname,
+          originalname: req.file.originalname,
+          mimetype: req.file.mimetype,
+          size: req.file.size
+        } : 'No file uploaded',
+        headers: req.headers
       });
+
+      // Validate required fields
+      if (!req.body.fullName || !req.body.email || !req.body.phone) {
+        return res.status(400).json({ error: "Missing required fields" });
+      }
+
+      let cvPath = '';
+      if (req.file) {
+        const fileExtension = path.extname(req.file.originalname);
+        const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}${fileExtension}`;
+        const filePath = path.join(uploadDir, fileName);
+        
+        // Save file to disk
+        try {
+          await fs.promises.writeFile(filePath, req.file.buffer);
+          cvPath = fileName;
+          console.log('File saved successfully:', filePath);
+        } catch (err) {
+          console.error('Error saving file:', err);
+          return res.status(500).json({ error: "Failed to save CV file" });
+        }
+      }
 
       const talentData = {
         fullName: req.body.fullName,
         email: req.body.email,
         phone: req.body.phone,
-        cvPath: req.file ? req.file.filename : '',
+        cvPath,
         status: 'lead'
       };
 
-      // Validate required fields
-      if (!talentData.fullName || !talentData.email || !talentData.phone) {
-        console.error('Missing required fields:', talentData);
-        return res.status(400).json({ error: "Missing required fields" });
-      }
-
-      console.log('Processing talent data:', talentData);
+      console.log('Saving talent data:', talentData);
       
       const [talent] = await db.insert(talents)
         .values(talentData)
@@ -202,22 +218,21 @@ export function registerRoutes(app: Express) {
 
       console.log('Talent saved successfully:', talent);
 
-      // Return the talent with the full CV path
       const responseData = {
         ...talent,
-        cvPath: talent.cvPath ? `/uploads/${talent.cvPath}` : ''
+        cvPath: cvPath ? `/uploads/${cvPath}` : ''
       };
 
-      console.log('Sending response:', responseData);
       res.json(responseData);
     } catch (error: any) {
       console.error('Error in talent registration:', error);
       if (error.code === '23505') {
         res.status(400).json({ error: "Email already registered" });
-      } else if (error.message.includes('Only PDF files are allowed')) {
-        res.status(400).json({ error: "Only PDF files are allowed" });
       } else {
-        res.status(500).json({ error: "Failed to register talent" });
+        res.status(500).json({ 
+          error: "Failed to register talent",
+          details: error.message 
+        });
       }
     }
   });
