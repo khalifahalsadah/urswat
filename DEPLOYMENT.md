@@ -3,16 +3,27 @@
 ## Repository Setup
 
 ### Creating a Git Repository
-1. Create a new repository on your preferred Git hosting service (GitHub, GitLab, etc.)
-2. Initialize the repository locally:
+
+1. On GitHub:
+   - Go to github.com and sign in
+   - Click the "+" button in the top right corner
+   - Select "New repository"
+   - Name it "urswat"
+   - Leave "Initialize this repository with a README" unchecked
+   - Click "Create repository"
+
+2. Get the code:
+   - Download the project files from Replit using the "Download as zip" option
+   - Extract the zip file on your local machine
+
+3. Initialize the repository locally:
 ```bash
+cd urswat
 git init
 git add .
 git commit -m "Initial commit"
-```
-3. Add your remote repository:
-```bash
-git remote add origin YOUR_REPOSITORY_URL
+git branch -M main
+git remote add origin git@github.com:khalifahalsadah/urswat.git
 git push -u origin main
 ```
 
