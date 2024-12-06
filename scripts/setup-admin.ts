@@ -30,9 +30,7 @@ async function createAdminUser() {
       email: adminEmail,
       password: hashedPassword,
       phone: "admin",
-      role: "admin",
-      createdAt: new Date(),
-      role: "admin"
+      createdAt: new Date()
     });
 
     console.log("Admin user created successfully");
