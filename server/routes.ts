@@ -175,12 +175,15 @@ export function registerRoutes(app: Express) {
   app.post("/api/talents", upload.single('cv'), async (req, res) => {
     try {
       const cvPath = req.file ? req.file.filename : null;
+      console.log('Uploaded file:', req.file);
       const talentData = {
         ...req.body,
         cvPath: cvPath || ''  // Ensure we store empty string instead of null
       };
+      console.log('Talent data to save:', talentData);
       
       const talent = await db.insert(talents).values(talentData).returning();
+      console.log('Saved talent:', talent[0]);
       res.json(talent[0]);
     } catch (error: any) {
       if (error.code === '23505') { // PostgreSQL unique violation error code
@@ -277,8 +280,17 @@ export function registerRoutes(app: Express) {
       const allTalents = await db.query.talents.findMany({
         orderBy: (talents, { desc }) => [desc(talents.createdAt)]
       });
-      res.json(allTalents);
+      
+      // Map the talents to ensure CV paths are properly formed
+      const talentsWithFullPaths = allTalents.map(talent => ({
+        ...talent,
+        cvPath: talent.cvPath ? `/uploads/${talent.cvPath}` : ''
+      }));
+      
+      console.log('Retrieved talents:', talentsWithFullPaths);
+      res.json(talentsWithFullPaths);
     } catch (error) {
+      console.error('Error fetching talents:', error);
       res.status(500).json({ error: "Failed to fetch talents" });
     }
   });

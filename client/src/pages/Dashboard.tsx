@@ -411,7 +411,7 @@ export default function Dashboard() {
                           <TableCell>
                             {talent.cvPath ? (
                               <a 
-                                href={talent.cvPath.startsWith('http') ? talent.cvPath : `/uploads/${talent.cvPath}`} 
+                                href={talent.cvPath} 
                                 target="_blank" 
                                 rel="noopener noreferrer" 
                                 className="text-blue-600 hover:underline"
