@@ -24,7 +24,9 @@ export default function LandingPage() {
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState("talent");
 
-  const talentForm = useForm<InsertTalent & { cvFile?: File }>({
+  type TalentFormData = InsertTalent & { cvFile?: FileList };
+  
+  const talentForm = useForm<TalentFormData>({
     resolver: zodResolver(insertTalentSchema),
     defaultValues: {
       fullName: "",
@@ -257,16 +259,22 @@ export default function LandingPage() {
                 </CardHeader>
                 <CardContent>
                   <Form {...talentForm}>
-                    <form onSubmit={talentForm.handleSubmit((data) => {
+                    <form 
+                      onSubmit={talentForm.handleSubmit((data) => {
+                        console.log('Form data:', data);
                         const formData = new FormData();
                         formData.append('fullName', data.fullName);
                         formData.append('email', data.email);
                         formData.append('phone', data.phone);
-                        if (data.cvFile) {
-                          formData.append('cv', data.cvFile);
+                        if (data.cvFile?.[0]) {
+                          console.log('Attaching CV file:', data.cvFile[0]);
+                          formData.append('cv', data.cvFile[0]);
                         }
                         talentMutation.mutate(formData);
-                    })} className="space-y-8" encType="multipart/form-data">
+                      })} 
+                      className="space-y-8" 
+                      encType="multipart/form-data"
+                    >
                       <FormField
                         control={talentForm.control}
                         name="fullName"
@@ -318,11 +326,11 @@ export default function LandingPage() {
                                   type="file"
                                   accept=".pdf"
                                   onChange={(e) => {
-                                    const file = e.target.files?.[0];
-                                    console.log('Selected file:', file);
-                                    if (file) {
-                                      talentForm.setValue('cvFile', file);
-                                      talentForm.setValue('cvPath', file.name);
+                                    const files = e.target.files;
+                                    console.log('Selected files:', files);
+                                    if (files?.length) {
+                                      talentForm.setValue('cvFile', files);
+                                      talentForm.setValue('cvPath', files[0].name);
                                     }
                                   }}
                                 />
