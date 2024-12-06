@@ -174,37 +174,49 @@ export function registerRoutes(app: Express) {
   // Create talent
   app.post("/api/talents", upload.single('cv'), async (req, res) => {
     try {
-      if (!req.file && !req.body.fullName) {
-        return res.status(400).json({ error: "Missing required fields" });
-      }
+      console.log('Received talent registration request:', {
+        body: req.body,
+        file: req.file,
+        headers: req.headers['content-type']
+      });
 
-      const cvPath = req.file ? req.file.filename : '';
-      console.log('Uploaded file:', req.file);
-      
       const talentData = {
         fullName: req.body.fullName,
         email: req.body.email,
         phone: req.body.phone,
-        cvPath: cvPath,
+        cvPath: req.file ? req.file.filename : '',
         status: 'lead'
       };
+
+      // Validate required fields
+      if (!talentData.fullName || !talentData.email || !talentData.phone) {
+        console.error('Missing required fields:', talentData);
+        return res.status(400).json({ error: "Missing required fields" });
+      }
+
+      console.log('Processing talent data:', talentData);
       
-      console.log('Talent data to save:', talentData);
-      const talent = await db.insert(talents).values(talentData).returning();
-      console.log('Saved talent:', talent[0]);
-      
+      const [talent] = await db.insert(talents)
+        .values(talentData)
+        .returning();
+
+      console.log('Talent saved successfully:', talent);
+
       // Return the talent with the full CV path
-      const talentWithFullPath = {
-        ...talent[0],
-        cvPath: cvPath ? `/uploads/${cvPath}` : ''
+      const responseData = {
+        ...talent,
+        cvPath: talent.cvPath ? `/uploads/${talent.cvPath}` : ''
       };
-      
-      res.json(talentWithFullPath);
+
+      console.log('Sending response:', responseData);
+      res.json(responseData);
     } catch (error: any) {
+      console.error('Error in talent registration:', error);
       if (error.code === '23505') {
         res.status(400).json({ error: "Email already registered" });
+      } else if (error.message.includes('Only PDF files are allowed')) {
+        res.status(400).json({ error: "Only PDF files are allowed" });
       } else {
-        console.error('Error registering talent:', error);
         res.status(500).json({ error: "Failed to register talent" });
       }
     }
