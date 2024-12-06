@@ -373,4 +373,25 @@ export function registerRoutes(app: Express) {
       res.status(500).json({ error: "Failed to fetch companies" });
     }
   });
+  // Test email endpoint
+  app.post("/api/test-email", async (req, res) => {
+    try {
+      const { email } = req.body;
+      await sendTalentRegistrationEmail({
+        fullName: "Rawan",
+        email: email,
+      });
+      res.json({ message: "Test email sent successfully" });
+    } catch (error: any) {
+      console.error('Error sending test email:', {
+        message: error.message,
+        stack: error.stack,
+      });
+      res.status(500).json({ 
+        error: "Failed to send test email",
+        details: error.message 
+      });
+    }
+  });
+
 }
