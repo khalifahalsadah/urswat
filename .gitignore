@@ -1,6 +1,40 @@
-node_modules
-dist
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Production build
+dist/
+build/
+server/public/
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Debug logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# System files
 .DS_Store
-server/public
+*.pem
+.idea/
+.vscode/
+
+# TypeScript
+*.tsbuildinfo
 vite.config.ts.*
+
+# Temporary files
+*.swp
+*.swo
 *.tar.gz
+
+# Upload directory
+uploads/*
+!uploads/.gitkeep

@@ -1,5 +1,21 @@
 # Deployment Guide for ursWat Landing Page
 
+## Repository Setup
+
+### Creating a Git Repository
+1. Create a new repository on your preferred Git hosting service (GitHub, GitLab, etc.)
+2. Initialize the repository locally:
+```bash
+git init
+git add .
+git commit -m "Initial commit"
+```
+3. Add your remote repository:
+```bash
+git remote add origin YOUR_REPOSITORY_URL
+git push -u origin main
+```
+
 ## Prerequisites
 - Node.js v20.x
 - PostgreSQL 16.x
