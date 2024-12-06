@@ -267,7 +267,7 @@ export default function Dashboard() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {usersQuery.data?.map((user) => (
+                      {usersQuery.data?.map((user: User) => (
                         <TableRow key={user.id}>
                           <TableCell>{user.name}</TableCell>
                           <TableCell>{user.email}</TableCell>
@@ -403,7 +403,7 @@ export default function Dashboard() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {talentsQuery.data?.map((talent) => (
+                      {talentsQuery.data?.map((talent: Talent) => (
                         <TableRow key={talent.id}>
                           <TableCell>{talent.fullName}</TableCell>
                           <TableCell>{talent.email}</TableCell>
@@ -464,7 +464,7 @@ export default function Dashboard() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {companiesQuery.data?.map((company) => (
+                      {companiesQuery.data?.map((company: Company) => (
                         <TableRow key={company.id}>
                           <TableCell>{company.companyName}</TableCell>
                           <TableCell>{company.contactPerson}</TableCell>
