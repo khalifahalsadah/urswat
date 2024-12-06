@@ -87,24 +87,10 @@ export async function deleteUser(id: number) {
   return response.json();
 }
 
-export async function registerTalent(data: InsertTalent & { cvFile?: File }) {
-  const formData = new FormData();
-  
-  // Add all text fields to formData
-  Object.entries(data).forEach(([key, value]) => {
-    if (key !== 'cvFile' && value !== undefined && value !== null) {
-      formData.append(key, value.toString());
-    }
-  });
-  
-  // Add the CV file if it exists
-  if (data.cvFile) {
-    formData.append('cv', data.cvFile);
-  }
-  
+export async function registerTalent(data: FormData) {
   const response = await fetch(`${API_BASE}/talents`, {
     method: "POST",
-    body: formData,
+    body: data,
   });
   
   if (!response.ok) {

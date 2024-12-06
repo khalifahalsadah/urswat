@@ -174,19 +174,34 @@ export function registerRoutes(app: Express) {
   // Create talent
   app.post("/api/talents", upload.single('cv'), async (req, res) => {
     try {
-      const cvPath = req.file ? req.file.filename : null;
+      if (!req.file && !req.body.fullName) {
+        return res.status(400).json({ error: "Missing required fields" });
+      }
+
+      const cvPath = req.file ? req.file.filename : '';
       console.log('Uploaded file:', req.file);
-      const talentData = {
-        ...req.body,
-        cvPath: cvPath || ''  // Ensure we store empty string instead of null
-      };
-      console.log('Talent data to save:', talentData);
       
+      const talentData = {
+        fullName: req.body.fullName,
+        email: req.body.email,
+        phone: req.body.phone,
+        cvPath: cvPath,
+        status: 'lead'
+      };
+      
+      console.log('Talent data to save:', talentData);
       const talent = await db.insert(talents).values(talentData).returning();
       console.log('Saved talent:', talent[0]);
-      res.json(talent[0]);
+      
+      // Return the talent with the full CV path
+      const talentWithFullPath = {
+        ...talent[0],
+        cvPath: cvPath ? `/uploads/${cvPath}` : ''
+      };
+      
+      res.json(talentWithFullPath);
     } catch (error: any) {
-      if (error.code === '23505') { // PostgreSQL unique violation error code
+      if (error.code === '23505') {
         res.status(400).json({ error: "Email already registered" });
       } else {
         console.error('Error registering talent:', error);

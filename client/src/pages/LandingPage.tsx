@@ -257,7 +257,16 @@ export default function LandingPage() {
                 </CardHeader>
                 <CardContent>
                   <Form {...talentForm}>
-                    <form onSubmit={talentForm.handleSubmit((data) => talentMutation.mutate(data))} className="space-y-8">
+                    <form onSubmit={talentForm.handleSubmit((data) => {
+                        const formData = new FormData();
+                        formData.append('fullName', data.fullName);
+                        formData.append('email', data.email);
+                        formData.append('phone', data.phone);
+                        if (data.cvFile) {
+                          formData.append('cv', data.cvFile);
+                        }
+                        talentMutation.mutate(formData);
+                    })} className="space-y-8" encType="multipart/form-data">
                       <FormField
                         control={talentForm.control}
                         name="fullName"
