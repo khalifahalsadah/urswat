@@ -17,9 +17,27 @@ git push -u origin main
 ```
 
 ## Prerequisites
-- Node.js v20.x
-- PostgreSQL 16.x
-- SendGrid account for email notifications
+- Node.js v20.x (required for running the application)
+- PostgreSQL 16.x (required for the database)
+- SendGrid account for email notifications (required for sending registration emails)
+- Git (for cloning the repository)
+
+## Initial Setup
+1. Clone the repository:
+   ```bash
+   git clone git@github.com:khalifahalsadah/urswat.git
+   cd urswat
+   ```
+
+2. Create a `.env` file in the root directory with the following variables:
+   ```env
+   DATABASE_URL=postgresql://user:password@localhost:5432/database_name
+   SENDGRID_API_KEY=your_sendgrid_api_key
+   SENDGRID_FROM_EMAIL=your_verified_sender_email
+   JWT_SECRET=your_jwt_secret
+   ADMIN_EMAIL=admin@example.com
+   ADMIN_PASSWORD=your_admin_password
+   ```
 
 ## Environment Variables
 The following environment variables need to be set:
